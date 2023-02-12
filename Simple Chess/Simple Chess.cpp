@@ -37,26 +37,47 @@ int main()
 	while (true) {
 
 		board.printChessboard();
-		std::wcout << "Player " << curPlayerId + 1 << " it is now your turn" << std::endl;
+		if (curPlayerId + 1 == 2)
+		{
+			printf(CSI "30m"); // 
+			std::cout << "Player " << curPlayerId + 1;
+			printf(CSI "0m"); // 
+
+		}
+		else
+			std::cout << "Player " << curPlayerId + 1;
+		std::cout << " it is now your turn" << std::endl;
 		std::string input;
 		char endPos[3]{};
-
-		// While loop
-		std::wcout << "Please enter the piece you'd like to move (piece, x, y);" << std::endl;
-		std::cin >> input;
 		char startPos[3]{};
-		//validateInput(); // Validate the actual chars
-		getInputArray(input, startPos);
-		// Is this an actual piece they own?
+		bool isValidInput = false;
+		// While loop
+		while (!isValidInput)
+		{
+			std::wcout << "Please enter the piece you'd like to move (piece, x, y);" << std::endl;
+			std::cin >> input;
+			std::cin.ignore(200, '\n');
+			if (input.size() == 5)
+			{
+				getInputArray(input, startPos);
+				isValidInput = true;
+			}
+		}
 
-		while (true)
+		isValidInput = false;
+		while (!isValidInput)
 		{
 			std::wcout << "Please enter the position you'd like to move to (piece, x, y):" << std::endl;
 			std::cin >> input;
-			//validateInput(); // Validate the actual chars
-			getInputArray(input, endPos);
-			if (isValid(startPos, endPos, curPlayer->playerColor, board))
-				break;
+			std::cin.ignore(200, '\n');
+			if (input.size() == 5)
+			{
+				getInputArray(input, endPos);
+				if (isValid(startPos, endPos, curPlayer->playerColor, board))
+				{
+					isValidInput = true; 
+				}
+			}
 		}
 		//board.whitePlayer.setPosition(startPos, endPos);
 		curPlayer->setPosition(startPos, endPos);
