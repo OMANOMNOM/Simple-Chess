@@ -10,15 +10,15 @@ void Chessboard::PrintRowDivider(bool isEdge)
 	{
 		std::wcout << "+";
 		for (int i = 0; i < 7; i++)
-			std::wcout << "--";
-		std::wcout << "-+";
+			std::wcout << "----";
+		std::wcout << "---+";
 
 	}
 	else {
 
 		std::wcout << "+";
 		for (int i = 0; i < 8; i++)
-			std::wcout << "-+";
+			std::wcout << "---+";
 	}
 	std::wcout << std::endl;
 
@@ -43,11 +43,11 @@ void Chessboard::printChessboard()
 {
 	char columns[8] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
 	// i are rows
-	std::wcout << " ";
+	std::wcout << "  ";
 	for (int i = 0; i < 8; i++)
 	{
 		std::wcout << columns[i];
-		std::wcout << " ";
+		std::wcout << "   ";
 	}
 	std::wcout << std::endl;
 	PrintRowDivider(true);
@@ -76,11 +76,11 @@ void Chessboard::printChessboard()
 			}
 			if (square == 'x')
 			{
-				square = ' ';
+				square = '   ';
 				//square = this->board[i][j];
 			}
 
-			std::cout << square;
+			std::cout << " " << square << " ";
 			printf(CSI "0m");
 			PrintVerticalDivider();
 		}
@@ -97,7 +97,7 @@ void Chessboard::printChessboard()
 
 		}
 		std::cout << std::endl;
-		if (i != 7)
+		if (i !=1)
 			PrintRowDivider(false);
 		else
 			PrintRowDivider(true);
