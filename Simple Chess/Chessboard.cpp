@@ -14,7 +14,7 @@ void Chessboard::PrintRowDivider(bool isEdge)
 		std::wcout << "---+";
 
 	}
-	else {
+	else { 
 
 		std::wcout << "+";
 		for (int i = 0; i < 8; i++)
@@ -88,12 +88,13 @@ void Chessboard::printChessboard()
 		if (i == 6)
 		{
 			//print out the scores for blacks
-			std::cout << "Blacks: " << "P: " << blackPlayer.score.pawns;
+			std::cout << "Blacks: " << "P:" << blackPlayer.score.pawns << " R:" << blackPlayer.score.rooks << " N:" << blackPlayer.score.knights << " B:" << blackPlayer.score.bishops << " Q:" << blackPlayer.score.queen;
+
 		}
 		
 		if (i == 1) {
 			//Print out the scores for whites
-			std::cout << "Whites: " << "P: " << whitePlayer.score.pawns;
+			std::cout << "Whites: " << "P: " << whitePlayer.score.pawns << " R:" << whitePlayer.score.rooks << " N:" << whitePlayer.score.knights << " B:" << whitePlayer.score.bishops << " Q:" << whitePlayer.score.queen;
 
 		}
 		std::cout << std::endl;

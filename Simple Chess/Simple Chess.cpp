@@ -39,10 +39,9 @@ int main() {
 	while (true) {
 		board.printChessboard();
 		if (curPlayerId + 1 == 2) {
-			printf(CSI "30m"); //
+			printf(CSI "30m");
 			std::cout << "Player " << curPlayerId + 1;
-			printf(CSI "0m"); //
-
+			printf(CSI "0m"); 
 		}
 		else
 			std::cout << "Player " << curPlayerId + 1;
@@ -359,15 +358,48 @@ bool isSquareEmptyOrTakeable(char  endPos[], Chessboard& board, player::Color pl
 bool isPieceTakeable(player::Color playercolor, Chessboard& board,
 	char endPos[]) {
 	// What is the color of the opponents?
+	player *curPlayer = nullptr;
+	player *enemyPlayer = nullptr;
+
+	if (playercolor == player::Color::whitePlayer)
+	{
+		curPlayer = &board.whitePlayer;
+		enemyPlayer = &board.blackPlayer;
+	}
+	else
+	{
+		curPlayer = &board.blackPlayer;
+		enemyPlayer = &board.whitePlayer;
+	
+	}
 	if (playercolor == player::Color::whitePlayer) {
 		// Search through said opponents pieces to see if their peice is there
 		for (int i = 0; i < 16; i++) {
 			// If it is one of their pieces at that location
 			if (board.blackPlayer.pieces[i][1] == endPos[1] &&
 				board.blackPlayer.pieces[i][2] == endPos[2]) {
-				// We then destroy said piece
+				// Find out what piece it is
+				switch (board.blackPlayer.pieces[i][0])
+				{
+				case 'P':
+					board.whitePlayer.score.pawns += 1;
+					break;
+				case 'R':
+					board.whitePlayer.score.rooks += 1;
+					break;
+				case 'N':
+					board.whitePlayer.score.knights += 1;
+					break;
+				case 'B':
+					board.whitePlayer.score.bishops += 1;
+					break;
+				case 'Q':
+					board.whitePlayer.score.queen += 1;
+					break;
+				}
+				// Set that piece to dead
 				board.blackPlayer.pieces[i][0] = 'x';
-				board.whitePlayer.score.pawns += 1;
+
 				return true;
 			}
 		}
@@ -377,8 +409,26 @@ bool isPieceTakeable(player::Color playercolor, Chessboard& board,
 			if (board.whitePlayer.pieces[i][1] == endPos[1] &&
 				board.whitePlayer.pieces[i][2] == endPos[2]) {
 				// Then we need to preform takeing said piece
+				switch (board.whitePlayer.pieces[i][0])
+				{
+				case 'P':
+					board.blackPlayer.score.pawns += 1;
+					break;
+				case 'R':
+					board.blackPlayer.score.rooks += 1;
+					break;
+				case 'N':
+					board.blackPlayer.score.knights += 1;
+					break;
+				case 'B':
+					board.blackPlayer.score.bishops += 1;
+					break;
+				case 'Q':
+					board.blackPlayer.score.queen += 1;
+					break;
+				}
 				board.whitePlayer.pieces[i][0] = 'x';
-				board.blackPlayer.score.pawns += 1;
+				
 				return true;
 			}
 		}
@@ -398,5 +448,39 @@ bool isSquareEmpty(char endPos[], Chessboard& board) {
 		}
 	}
 	return true;
+}
+
+//is Checked
+bool isChecked(Chessboard& board, player::Color curPlayer)
+{
+	player* enemy = nullptr;
+	if (curPlayer == player::Color::blackPlayer)
+	{
+		enemy = &board.whitePlayer;
+	}
+	else
+	{
+		enemy = &board.blackPlayer;
+	}
+
+	// Loop through all enemy pieces
+	for (int i = 0; i < 16; i++)
+	{
+		// Can any of the pieces take the king in the next move? <----- same function
+		// 
+		// Get the current players king position
+		// see if each piece can move to kings position (use is valid function)
+		// TODO change isvalid to only check and not acutally preform the take
+
+
+
+
+		// iF yes check
+			// Check all kings neighbouring squares to see if the king could move into those spaces
+				// Check those spaces are valid to move into
+					// Can any of squares be taken in the next turn too? <------ Same function
+
+	}
+
 }
 
