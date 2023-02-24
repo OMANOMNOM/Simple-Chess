@@ -26,6 +26,8 @@ bool isSquareEmpty(char endPos[], Chessboard& board);
 
 bool isChecked(Chessboard& board, player::Color curPlayer);
 
+bool isCheckMate(Chessboard& board, player::Color curPlayer);
+
 int main() {
 	HANDLE hStdOut;
 	DWORD originalMode = 0;
@@ -95,6 +97,10 @@ int main() {
 			std::cout << "black is checked";
 		if (isChecked(board, player::Color::whitePlayer))
 			std::cout << "black is checked";
+		if (isCheckMate(board, player::Color::blackPlayer))
+			std::cout << "black is checkmate ";
+		if (isCheckMate(board, player::Color::whitePlayer))
+			std::cout << "black is checkmate ";
 	}
 }
 
@@ -483,8 +489,51 @@ bool isChecked(Chessboard& board, player::Color curPlayer)
 			// Check all kings neighbouring squares to see if the king could move into those spaces
 				// Check those spaces are valid to move into
 					// Can any of squares be taken in the next turn too? <------ Same function
-
 	}
 	return false;
 }
+
+// Check all kings neighbouring squares to see if the king could move into those spaces
+bool isCheckMate(Chessboard& board, player::Color curPlayer) {
+	player* enemy = nullptr;
+	player* currentPlayer = nullptr;
+
+	if (curPlayer == player::Color::blackPlayer)
+	{
+		enemy = &board.whitePlayer;
+		currentPlayer = &board.blackPlayer;
+	}
+	else
+	{
+		enemy = &board.blackPlayer;
+		currentPlayer = &board.whitePlayer;
+
+	}
+
+	char king[3] = { currentPlayer->pieces[11][0], currentPlayer->pieces[11][1], currentPlayer->pieces[11][2] };
+	for (int i = -1; i < 2; i++)
+	{
+		for (int j = -1; j < 2; j++)
+		{
+			int x = (king[1] + i) - 48;
+			int y = (king[2] + j) - 48;
+			char start[] = { 'K', x, y };
+			if (x <= 7 && x >= 0 && y <= 7 && y >= 0)
+			{
+				for (int i = 0; i < 16; i++)
+				{
+					// Can any of the pieces take the king in the next move? <----- same function
+					char start[3] = { enemy->pieces[i][0], enemy->pieces[i][1], enemy->pieces[i][2] };
+					if (isValidTraversal(start, king, currentPlayer->playerColor, board))
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+
+}
+
 
