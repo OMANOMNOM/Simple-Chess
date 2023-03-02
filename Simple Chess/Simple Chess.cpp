@@ -28,6 +28,8 @@ bool isChecked(Chessboard& board, player::Color curPlayer);
 
 bool isCheckMate(Chessboard& board, player::Color curPlayer);
 
+bool isValidSelection(char startPos[], player* curPlayer);
+
 int main() {
 	HANDLE hStdOut;
 	DWORD originalMode = 0;
@@ -63,7 +65,15 @@ int main() {
 			std::cin.ignore(200, '\n');
 			if (input.size() == 5) {
 				getInputArray(input, startPos);
-				isValidInput = true;
+				//Check if selection is of a valid piece.
+				// get color 
+				// get start pos
+				if (isValidSelection(startPos, curPlayer)) 
+				{
+					isValidInput = true;
+				}
+					
+				// check if player has a piece at that start position
 			}
 		}
 
@@ -534,6 +544,22 @@ bool isCheckMate(Chessboard& board, player::Color curPlayer) {
 	}
 	return false;
 
+	
+}
+
+bool isValidSelection(char startPos[], player* curPlayer) {
+	for (int i = 0; i < 16; i++)
+	{
+		if (curPlayer->pieces[i][0] != 'x')
+		{
+			if (curPlayer->pieces[i][1] == startPos[1] && curPlayer->pieces[i][2] == startPos[2])
+			{
+				return true;
+			}
+		}
+	}
+	std::cout << "You haven't selected a valid piece" << std::endl;
+	return false;
 }
 
 
