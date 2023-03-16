@@ -11,6 +11,7 @@
 #include <String>
 #include <iostream>
 #include "Chessboard.h"
+#include "Pieces.h"
 #define CSI "\x1b["
 
 void clearDisplay(HANDLE& hStdOut, const DWORD& originalMode);
@@ -68,11 +69,11 @@ int main() {
 				//Check if selection is of a valid piece.
 				// get color 
 				// get start pos
-				/*if (isValidSelection(startPos, curPlayer)) 
+				if (isValidSelection(startPos, curPlayer))
 				{
 					isValidInput = true;
-				}*/
-					
+				}
+
 				// check if player has a piece at that start position
 			}
 		}
@@ -547,19 +548,14 @@ void getInputArray(std::string& input, char startPos[]) {
 //	
 //}
 //
-//bool isValidSelection(char startPos[], player* curPlayer) {
-//	for (int i = 0; i < 16; i++)
-//	{
-//		if (curPlayer->pieces[i][0] != 'x')
-//		{
-//			if (curPlayer->pieces[i][1] == startPos[1] && curPlayer->pieces[i][2] == startPos[2])
-//			{
-//				return true;
-//			}
-//		}
-//	}
-//	std::cout << "You haven't selected a valid piece" << std::endl;
-//	return false;
-//}
-//
-//
+bool isValidSelection(char startPos[], player* curPlayer) {
+	Piece piece;
+	if (!curPlayer->pieces->GetPieceAtCoord(startPos, piece))
+	{
+		std::cout << "You haven't selected a valid piece" << std::endl;
+		return false;
+	}
+	return false;
+}
+
+

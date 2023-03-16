@@ -10,6 +10,8 @@ class Pieces
 public:
 	std::vector<Piece*> piecesArray;
 
+	// Get piece at grid 
+	bool GetPieceAtCoord(char Coord[2], Piece &outPiece);
 	Pieces();
 };
 
