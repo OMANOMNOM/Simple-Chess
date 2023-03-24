@@ -43,6 +43,5 @@ public:
 
 public:
 
-	void setPosition(char[], char[]);
 };
 

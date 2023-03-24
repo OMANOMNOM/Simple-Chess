@@ -8,7 +8,7 @@
 #include "King.h"
 
 // If piece is at said location, 
-bool Pieces::GetPieceAtCoord(char Coord[2], Piece& outPiece)
+bool Pieces::GetPieceAtCoord(char Coord[3], Piece& outPiece)
 {
 	for (auto& piece : piecesArray)
 	{
@@ -21,9 +21,37 @@ bool Pieces::GetPieceAtCoord(char Coord[2], Piece& outPiece)
 	return false;
 }
 
+bool Pieces::KillPieceAtCoord(char Coord[3])
+{
+	for (auto& piece : piecesArray)
+	{
+		if (piece->info[1] == Coord[1] && piece->info[2] == Coord[2])
+		{
+			piece->info[0] = 'x';
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Pieces::SetPosition(char curCoord[2], char newCoord[2])
+{
+	for (auto& piece : piecesArray)
+	{
+		if (piece->info[1] == curCoord[1] && piece->info[2] == curCoord[2])
+		{
+			piece->info[1] = newCoord[1];
+			piece->info[2] = newCoord[2];
+			return true;
+		}
+	}
+	return false;
+}
+
+
 Pieces::Pieces()
 {
-	Pawn* piece1 = new Pawn('0', '1');
+	Pawn* piece1 = new Pawn('0', '5');
 	Pawn* piece2 = new Pawn('1', '1');
 	Pawn* piece3 = new Pawn('2', '1');
 	Pawn* piece4 = new Pawn('3', '1');

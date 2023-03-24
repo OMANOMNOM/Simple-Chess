@@ -27,9 +27,6 @@
     <ClCompile Include="Chessboard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="player.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Score.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
