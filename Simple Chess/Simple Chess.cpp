@@ -67,14 +67,10 @@ int main() {
 			if (input.size() == 5) {
 				getInputArray(input, startPos);
 				//Check if selection is of a valid piece.
-				// get color 
-				// get start pos
 				if (isValidSelection(startPos, curPlayer))
 				{
 					isValidInput = true;
 				}
-
-				// check if player has a piece at that start position
 			}
 		}
 
@@ -87,14 +83,14 @@ int main() {
 			std::cin.ignore(200, '\n');
 			if (input.size() == 5) {
 				getInputArray(input, endPos);
-				/*if (isValidTraversal(startPos, endPos, curPlayer->playerColor, board)) {
-					if (isSquareEmptyOrTakeable(endPos, board, curPlayer->playerColor))
+				if (isValidTraversal(startPos, endPos, curPlayer->playerColor, board)) {
+					//if (isSquareEmptyOrTakeable(endPos, board, curPlayer->playerColor))
 						isValidInput = true;
-				}*/
+				}
 			}
 		}
 		// don't know if i should uncomment this board.whitePlayer.setPosition(startPos, endPos);
-		//curPlayer->setPosition(startPos, endPos);
+		curPlayer->setPosition(startPos, endPos);
 		if (curPlayerId == 0) {
 			curPlayerId = 1;
 			curPlayer = &board.blackPlayer;
@@ -157,208 +153,207 @@ void getInputArray(std::string& input, char startPos[]) {
 	startPos[2] -= 1;
 }
 
-// can their chosen piece make that move.
-// Is the piece blocking its movement
-// Does this result in taking another piece?
-//bool isValidTraversal(char startPos[], char endPos[], player::Color playercolor,
-//	Chessboard& board) {
-//	// What kind of piece is it
-//	switch (startPos[0]) {
-//	case 'P':
-//		// Does it move in the correct direction
-//		if ((playercolor == player::Color::whitePlayer &&
-//			(startPos[2] - endPos[2]) < 0) ||
-//			(playercolor == player::Color::blackPlayer &&
-//				(startPos[2] - endPos[2]) > 0)) {
-//			// Does it move by one in only the column and zero in the row
-//			if (startPos[1] == endPos[1] &&
-//				std::abs((startPos[2] - endPos[2])) == 1) {
-//				if (isSquareEmpty(endPos, board)) {
-//					return true;
-//				}
-//			}
-//			// Check if the pawn can take a piece
-//			if (std::abs(startPos[1] - endPos[1]) == 1 &&
-//				std::abs((startPos[2] - endPos[2])) == 1) {
-//				if (isPieceTakeable(playercolor, board, endPos)) {
-//					takePiece(playercolor, board, endPos);
-//					return true;
-//
-//				}
-//			}
-//		}
-//		return false;
-//
-//	case 'K':
-//		// Does it only move one unit
-//		if (std::abs(startPos[1] - endPos[1]) == 1 ||
-//			std::abs(startPos[2] - endPos[2]) == 1) 
-//			return true;
-//		return false;
-//
-//	case 'N':
-//		// Does it move in an 'L' Shape
-//		// 1, hoizontally, 2 vertically or // 2, horizontally, 1 verticlly
-//		if ((std::abs(startPos[1] - endPos[1]) == 1 &&
-//			std::abs(startPos[2] - endPos[2]) == 2) ||
-//			(std::abs(startPos[1] - endPos[1]) == 2 &&
-//				std::abs(startPos[2] - endPos[2]) == 1)) 
-//			return true;
-//		return false;
-//
-//	case 'R':
-//		// Does it only move in one axis?
-//		if (std::abs(startPos[1] - endPos[1]) > 0 &&
-//			std::abs(startPos[2] - endPos[2]) == 0 ||
-//			std::abs(startPos[2] - endPos[2]) > 0 &&
-//			std::abs(startPos[1] - endPos[1]) == 0) {
-//
-//			// Do pieces block its movement
-//			// If movement occurs horizontally
-//			if (std::abs(startPos[1] - endPos[1]) > 1) {
-//				int incrememter = 0;
-//				if (startPos[1] > endPos[1])
-//					incrememter = -1;
-//				else
-//					incrememter = 1;
-//
-//				for (int i = startPos[1] + incrememter; i != endPos[1];
-//					i += incrememter) {
-//					char temp[] = { 'z', i, startPos[2] };
-//					if (!isSquareEmpty(temp, board))
-//						return false;
-//				}
-//			}
-//
-//			// If movement occurs Vertically
-//			if (std::abs(startPos[2] - endPos[2]) > 1) {
-//				int incrememter = 0;
-//				if (startPos[2] > endPos[2])
-//					incrememter = -1;
-//				else
-//					incrememter = 1;
-//
-//				for (int i = startPos[2] + incrememter; i != endPos[2];
-//					i += incrememter) {
-//					char temp[] = { 'z', startPos[1], i };
-//					if (!isSquareEmpty(temp, board))
-//						return false;
-//				}
-//			}
-//			return true;
-//		}
-//		return false;
-//
-//	case 'B':
-//		// Does it only move in diagonals?
-//		if (std::abs(startPos[1] - endPos[1]) == std::abs(startPos[2] - endPos[2])) {
-//			// are the squares empty along its path
-//			if (std::abs(startPos[2] - endPos[2]) > 1) {
-//				int incrVert = 0;
-//				if (startPos[2] > endPos[2])
-//					incrVert = -1;
-//				else
-//					incrVert = 1;
-//
-//				if (std::abs(startPos[1] - endPos[1]) > 1) {
-//					int incrHor = 0;
-//					if (startPos[1] > endPos[1])
-//						incrHor = -1;
-//					else
-//						incrHor = 1;
-//					int j = startPos[1] + incrHor;
-//
-//					// Increment along path checking for blocking pieces
-//					for (int i = startPos[2] + incrVert; i != endPos[2];
-//						i += incrVert) {
-//
-//						char temp[] = { 'z', j, i };
-//						if (!isSquareEmpty(temp, board))
-//							return false;
-//						j += incrHor;
-//					}
-//				}
-//			}
-//			return true;
-//		}
-//		return false;
-//	case 'Q':
-//		// Does it only move in diagonals?
-//		if (std::abs(startPos[1] - endPos[1]) == std::abs(startPos[2] - endPos[2])) {
-//			// are the squares empty along its path
-//			if (std::abs(startPos[2] - endPos[2]) > 1) {
-//				int incrVert = 0;
-//				if (startPos[2] > endPos[2])
-//					incrVert = -1;
-//				else
-//					incrVert = 1;
-//
-//				if (std::abs(startPos[1] - endPos[1]) > 1) {
-//					int incrHor = 0;
-//					if (startPos[1] > endPos[1])
-//						incrHor = -1;
-//					else
-//						incrHor = 1;
-//					int j = startPos[1] + incrHor;
-//
-//					// Increment along path checking for blocking pieces
-//					for (int i = startPos[2] + incrVert; i != endPos[2];
-//						i += incrVert) {
-//
-//						char temp[] = { 'z', j, i };
-//						if (!isSquareEmpty(temp, board))
-//							return false;
-//						j += incrHor;
-//					}
-//				}
-//			}
-//			return true;
-//		}
-//		// Does it only move in one axis?
-//		if (std::abs(startPos[1] - endPos[1]) > 0 &&
-//			std::abs(startPos[2] - endPos[2]) == 0 ||
-//			std::abs(startPos[2] - endPos[2]) > 0 &&
-//			std::abs(startPos[1] - endPos[1]) == 0) {
-//
-//			// Do pieces block its movement
-//			// If movement occurs horizontally
-//			if (std::abs(startPos[1] - endPos[1]) > 1) {
-//				int incrememter = 0;
-//				if (startPos[1] > endPos[1])
-//					incrememter = -1;
-//				else
-//					incrememter = 1;
-//
-//				for (int i = startPos[1] + incrememter; i != endPos[1];
-//					i += incrememter) {
-//					char temp[] = { 'z', i, startPos[2] };
-//					if (!isSquareEmpty(temp, board))
-//						return false;
-//				}
-//			}
-//
-//			// If movement occurs Vertically
-//			if (std::abs(startPos[2] - endPos[2]) > 1) {
-//				int incrememter = 0;
-//				if (startPos[2] > endPos[2])
-//					incrememter = -1;
-//				else
-//					incrememter = 1;
-//
-//				for (int i = startPos[2] + incrememter; i != endPos[2];
-//					i += incrememter) {
-//					char temp[] = { 'z', startPos[1], i };
-//					if (!isSquareEmpty(temp, board))
-//						return false;
-//				}
-//			}
-//			return true;
-//		}
-//		return false;
-//		break;
-//	}
-//
-//}
+// 1. can their chosen piece make that move.
+// 2. Is the a piece blocking its movement
+// 3. Does this result in taking another piece?
+bool isValidTraversal(char startPos[], char endPos[], player::Color playercolor,
+	Chessboard& board) {
+	// What kind of piece is it
+	switch (startPos[0]) {
+	case 'P':
+		// Does it move in the correct direction
+		if ((playercolor == player::Color::whitePlayer &&
+			(startPos[2] - endPos[2]) < 0) ||
+			(playercolor == player::Color::blackPlayer &&
+				(startPos[2] - endPos[2]) > 0)) {
+			// Does it move by one in only the column and zero in the row
+			if (startPos[1] == endPos[1] &&
+				std::abs((startPos[2] - endPos[2])) == 1) {
+				if (isSquareEmpty(endPos, board)) {
+					return true;
+				}
+			}
+			// Check if the pawn can take a piece
+			if (std::abs(startPos[1] - endPos[1]) == 1 &&
+				std::abs((startPos[2] - endPos[2])) == 1) {
+				 if (isPieceTakeable(playercolor, board, endPos)) {
+					//takePiece(playercolor, board, endPos);
+					return true;
+				}
+			}
+		}
+		return false;
+
+	case 'K':
+		// Does it only move one unit
+		if (std::abs(startPos[1] - endPos[1]) == 1 ||
+			std::abs(startPos[2] - endPos[2]) == 1) 
+			return true;
+		return false;
+
+	case 'N':
+		// Does it move in an 'L' Shape
+		// 1, hoizontally, 2 vertically or // 2, horizontally, 1 verticlly
+		if ((std::abs(startPos[1] - endPos[1]) == 1 &&
+			std::abs(startPos[2] - endPos[2]) == 2) ||
+			(std::abs(startPos[1] - endPos[1]) == 2 &&
+				std::abs(startPos[2] - endPos[2]) == 1)) 
+			return true;
+		return false;
+
+	case 'R':
+		// Does it only move in one axis?
+		if (std::abs(startPos[1] - endPos[1]) > 0 &&
+			std::abs(startPos[2] - endPos[2]) == 0 ||
+			std::abs(startPos[2] - endPos[2]) > 0 &&
+			std::abs(startPos[1] - endPos[1]) == 0) {
+
+			// Do pieces block its movement
+			// If movement occurs horizontally
+			if (std::abs(startPos[1] - endPos[1]) > 1) {
+				int incrememter = 0;
+				if (startPos[1] > endPos[1])
+					incrememter = -1;
+				else
+					incrememter = 1;
+
+				for (int i = startPos[1] + incrememter; i != endPos[1];
+					i += incrememter) {
+					char temp[] = { 'z', i, startPos[2] };
+					if (!isSquareEmpty(temp, board))
+						return false;
+				}
+			}
+
+			// If movement occurs Vertically
+			if (std::abs(startPos[2] - endPos[2]) > 1) {
+				int incrememter = 0;
+				if (startPos[2] > endPos[2])
+					incrememter = -1;
+				else
+					incrememter = 1;
+
+				for (int i = startPos[2] + incrememter; i != endPos[2];
+					i += incrememter) {
+					char temp[] = { 'z', startPos[1], i };
+					if (!isSquareEmpty(temp, board))
+						return false;
+				}
+			}
+			return true;
+		}
+		return false;
+
+	case 'B':
+		// Does it only move in diagonals?
+		if (std::abs(startPos[1] - endPos[1]) == std::abs(startPos[2] - endPos[2])) {
+			// are the squares empty along its path
+			if (std::abs(startPos[2] - endPos[2]) > 1) {
+				int incrVert = 0;
+				if (startPos[2] > endPos[2])
+					incrVert = -1;
+				else
+					incrVert = 1;
+
+				if (std::abs(startPos[1] - endPos[1]) > 1) {
+					int incrHor = 0;
+					if (startPos[1] > endPos[1])
+						incrHor = -1;
+					else
+						incrHor = 1;
+					int j = startPos[1] + incrHor;
+
+					// Increment along path checking for blocking pieces
+					for (int i = startPos[2] + incrVert; i != endPos[2];
+						i += incrVert) {
+
+						char temp[] = { 'z', j, i };
+						if (!isSquareEmpty(temp, board))
+							return false;
+						j += incrHor;
+					}
+				}
+			}
+			return true;
+		}
+		return false;
+	case 'Q':
+		// Does it only move in diagonals?
+		if (std::abs(startPos[1] - endPos[1]) == std::abs(startPos[2] - endPos[2])) {
+			// are the squares empty along its path
+			if (std::abs(startPos[2] - endPos[2]) > 1) {
+				int incrVert = 0;
+				if (startPos[2] > endPos[2])
+					incrVert = -1;
+				else
+					incrVert = 1;
+
+				if (std::abs(startPos[1] - endPos[1]) > 1) {
+					int incrHor = 0;
+					if (startPos[1] > endPos[1])
+						incrHor = -1;
+					else
+						incrHor = 1;
+					int j = startPos[1] + incrHor;
+
+					// Increment along path checking for blocking pieces
+					for (int i = startPos[2] + incrVert; i != endPos[2];
+						i += incrVert) {
+
+						char temp[] = { 'z', j, i };
+						if (!isSquareEmpty(temp, board))
+							return false;
+						j += incrHor;
+					}
+				}
+			}
+			return true;
+		}
+		// Does it only move in one axis?
+		if (std::abs(startPos[1] - endPos[1]) > 0 &&
+			std::abs(startPos[2] - endPos[2]) == 0 ||
+			std::abs(startPos[2] - endPos[2]) > 0 &&
+			std::abs(startPos[1] - endPos[1]) == 0) {
+
+			// Do pieces block its movement
+			// If movement occurs horizontally
+			if (std::abs(startPos[1] - endPos[1]) > 1) {
+				int incrememter = 0;
+				if (startPos[1] > endPos[1])
+					incrememter = -1;
+				else
+					incrememter = 1;
+
+				for (int i = startPos[1] + incrememter; i != endPos[1];
+					i += incrememter) {
+					char temp[] = { 'z', i, startPos[2] };
+					if (!isSquareEmpty(temp, board))
+						return false;
+				}
+			}
+
+			// If movement occurs Vertically
+			if (std::abs(startPos[2] - endPos[2]) > 1) {
+				int incrememter = 0;
+				if (startPos[2] > endPos[2])
+					incrememter = -1;
+				else
+					incrememter = 1;
+
+				for (int i = startPos[2] + incrememter; i != endPos[2];
+					i += incrememter) {
+					char temp[] = { 'z', startPos[1], i };
+					if (!isSquareEmpty(temp, board))
+						return false;
+				}
+			}
+			return true;
+		}
+		return false;
+		break;
+	}
+
+}
 //
 //bool isSquareEmptyOrTakeable(char  endPos[], Chessboard& board, player::Color playercolor)
 //{
@@ -424,48 +419,74 @@ void getInputArray(std::string& input, char startPos[]) {
 //	}
 //}
 //
-//bool isPieceTakeable(player::Color playercolor, Chessboard& board,
-//	char endPos[]) {
-//	// What is the color of the opponents?
-//	player* curPlayer = nullptr;
-//	player* enemyPlayer = nullptr;
-//
-//	if (playercolor == player::Color::whitePlayer)
-//	{
-//		curPlayer = &board.whitePlayer;
-//		enemyPlayer = &board.blackPlayer;
-//	}
-//	else
-//	{
-//		curPlayer = &board.blackPlayer;
-//		enemyPlayer = &board.whitePlayer;
-//
-//	}
-//
-//	// Search through said opponents pieces to see if their peice is there
-//	for (int i = 0; i < 16; i++) {
-//		// If it is one of their pieces at that location
-//		if (enemyPlayer->pieces[i][1] == endPos[1] &&
-//			enemyPlayer->pieces[i][2] == endPos[2]) {
-//			return true;
-//		}
-//	}
-//	return false;
-//}
-//
-//bool isSquareEmpty(char endPos[], Chessboard& board) {
-//	for (int i = 0; i < 16; i++) {
-//		if (board.blackPlayer.pieces[i][1] == endPos[1] &&
-//			board.blackPlayer.pieces[i][2] == endPos[2]) {
-//			return false;
-//		}
-//		if (board.whitePlayer.pieces[i][1] == endPos[1] &&
-//			board.whitePlayer.pieces[i][2] == endPos[2]) {
-//			return false;
-//		}
-//	}
-//	return true;
-//}
+
+// Basicly is the piece at the final position belonging to the enemy (therfore takeable)
+bool isPieceTakeable(player::Color playercolor, Chessboard& board,
+	char endPos[]) {
+	// What is the color of the opponents?
+	player* curPlayer = nullptr;
+	player* enemyPlayer = nullptr;
+	if (playercolor == player::Color::whitePlayer)
+	{
+		curPlayer = &board.whitePlayer;
+		enemyPlayer = &board.blackPlayer;
+	}
+	else
+	{
+		curPlayer = &board.blackPlayer;
+		enemyPlayer = &board.whitePlayer;
+
+	}
+	// TODO delete this
+	//// Search through said opponents pieces to see if their peice is there
+	//for (int i = 0; i < 16; i++) {
+	//	// If it is one of their pieces at that location
+	//	if (enemyPlayer->pieces[i][1] == endPos[1] &&
+	//		enemyPlayer->pieces[i][2] == endPos[2]) {
+	//		return true;
+	//	}
+	//}
+	Piece empty;
+	char pos[2] = { endPos[1], endPos[2] };
+	if (enemyPlayer->pieces->GetPieceAtCoord(pos, empty) == true)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+	
+}
+
+bool isSquareEmpty(char endPos[], Chessboard& board) {
+	Piece empty;
+	if (board.blackPlayer.pieces->GetPieceAtCoord(endPos, empty) == false)
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
+	if (board.whitePlayer.pieces->GetPieceAtCoord(endPos, empty) == false)
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
+	/*for (int i = 0; i < 16; i++) {
+		if (board.blackPlayer.pieces[i][1] == endPos[1] &&
+			board.blackPlayer.pieces[i][2] == endPos[2]) {
+			return false;
+		}
+		if (board.whitePlayer.pieces[i][1] == endPos[1] &&
+			board.whitePlayer.pieces[i][2] == endPos[2]) {
+			return false;
+		}
+	}
+	return true;*/
+}
 //
 ////is Checked
 //bool isChecked(Chessboard& board, player::Color curPlayer)
@@ -555,7 +576,11 @@ bool isValidSelection(char startPos[], player* curPlayer) {
 		std::cout << "You haven't selected a valid piece" << std::endl;
 		return false;
 	}
-	return false;
+	else
+	{
+		return true;
+	}
+	
 }
 
 
