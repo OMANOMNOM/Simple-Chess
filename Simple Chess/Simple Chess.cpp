@@ -47,11 +47,11 @@ int main() {
 		board.printChessboard();
 		PlayerTurn(curPlayerId, curPlayer, board);
 		clearDisplay(hStdOut, originalMode);
-		/*if (isChecked(board, player::Color::blackPlayer))
+		if (isChecked(board, player::Color::blackPlayer))
 			std::cout << "black is checked";
 		if (isChecked(board, player::Color::whitePlayer))
-			std::cout << "black is checked";
-		if (isCheckMate(board, player::Color::blackPlayer))
+			std::cout << "White is checked";
+		/*if (isCheckMate(board, player::Color::blackPlayer))
 			std::cout << "black is checkmate ";
 		if (isCheckMate(board, player::Color::whitePlayer))
 			std::cout << "black is checkmate ";*/
@@ -467,43 +467,44 @@ bool isSquareEmpty(char endPos[], Chessboard& board) {
 	}
 }
 
-////is Checked
-//bool isChecked(Chessboard& board, player::Color curPlayer)
-//{
-//	player* enemy = nullptr;
-//	player* currentPlayer = nullptr;
-//
-//	if (curPlayer == player::Color::blackPlayer)
-//	{
-//		enemy = &board.whitePlayer;
-//		currentPlayer = &board.blackPlayer;
-//	}
-//	else
-//	{
-//		enemy = &board.blackPlayer;
-//		currentPlayer = &board.whitePlayer;
-//
-//	}
-//
-//	char king[3] = { currentPlayer->pieces[11][0], currentPlayer->pieces[11][1], currentPlayer->pieces[11][2] };
-//	// Loop through all enemy pieces
-//	for (int i = 0; i < 16; i++)
-//	{
-//		// Can any of the pieces take the king in the next move? <----- same function
-//		char start[3] = { enemy->pieces[i][0], enemy->pieces[i][1], enemy->pieces[i][2] };
-//		if (isValidTraversal(start,king,  currentPlayer->playerColor, board))
-//		{
-//			return true;
-//		}
-//		// TODO change isvalid to only check and not acutally preform the tak
-//		// iF yes check
-//			// Check all kings neighbouring squares to see if the king could move into those spaces
-//				// Check those spaces are valid to move into
-//					// Can any of squares be taken in the next turn too? <------ Same function
-//	}
-//	return false;
-//}
-//
+//is Checked
+bool isChecked(Chessboard& board, player::Color curPlayer)
+{
+	player* enemy = nullptr;
+	player* currentPlayer = nullptr;
+
+	if (curPlayer == player::Color::blackPlayer)
+	{
+		enemy = &board.whitePlayer;
+		currentPlayer = &board.blackPlayer;
+	}
+	else
+	{
+		enemy = &board.blackPlayer;
+		currentPlayer = &board.whitePlayer;
+
+	}
+	char king[3] = { currentPlayer->pieces->piece13->info[0], currentPlayer->pieces->piece13->info[1], currentPlayer->pieces->piece13->info[2] };
+	  	
+	// Loop through all enemy pieces
+	for (int i = 0; i < 16; i++)
+	{
+		// Can any of the pieces take the king in the next move? <----- same function
+		char start[3] = { enemy->pieces->piecesArray[i]->info[0], enemy->pieces->piecesArray[i]->info[1], enemy->pieces->piecesArray[i]->info[2] };
+		if (isValidTraversal(start,king,  currentPlayer->playerColor, board))
+		{
+			return true;
+		}
+		// TODO change isvalid to only check and not acutally preform the tak
+		// iF yes check
+			// Check all kings neighbouring squares to see if the king could move into those spaces
+				// Check those spaces are valid to move into
+					// Can any of squares be taken in the next turn too? <------ Same function
+	}
+	 
+	return false;
+}
+
 //// Check all kings neighbouring squares to see if the king could move into those spaces
 //bool isCheckMate(Chessboard& board, player::Color curPlayer) {
 //	player* enemy = nullptr;
