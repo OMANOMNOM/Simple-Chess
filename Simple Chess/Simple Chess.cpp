@@ -11,10 +11,12 @@
 #include <String>
 #include <iostream>
 #include "Chessboard.h"
+#include "Pieces.h"
 #define CSI "\x1b["
 
 void clearDisplay(HANDLE& hStdOut, const DWORD& originalMode);
 void EnableVirtualTerminalSequences(HANDLE& hStdOut, DWORD originalMode);
+void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board);
 void getInputArray(std::string& input, char startPos[]);
 bool isValidTraversal(char startPos[], char endPos[], player::Color playercolor,
 	Chessboard& board);
@@ -23,9 +25,7 @@ void takePiece(player::Color playercolor, Chessboard& board, char endPos[]);
 bool isPieceTakeable(player::Color playercolor, Chessboard& board,
 	char endPos[]);
 bool isSquareEmpty(char endPos[], Chessboard& board);
-
 bool isChecked(Chessboard& board, player::Color curPlayer);
-
 bool isCheckMate(Chessboard& board, player::Color curPlayer);
 
 bool isValidSelection(char startPos[], player* curPlayer);
@@ -45,72 +45,72 @@ int main() {
 
 	while (true) {
 		board.printChessboard();
-		if (curPlayerId + 1 == 2) {
-			printf(CSI "30m");
-			std::cout << "Player " << curPlayerId + 1;
-			printf(CSI "0m");
-		}
-		else
-			std::cout << "Player " << curPlayerId + 1;
-		std::cout << " it is now your turn" << std::endl;
-		std::string input;
-		char endPos[3]{};
-		char startPos[3]{};
-		bool isValidInput = false;
-		// While loop
-		while (!isValidInput) {
-			std::wcout << "Please enter the piece you'd like to move (piece, x, y);"
-				<< std::endl;
-			std::cin >> input;
-			std::cin.ignore(200, '\n');
-			if (input.size() == 5) {
-				getInputArray(input, startPos);
-				//Check if selection is of a valid piece.
-				// get color 
-				// get start pos
-				if (isValidSelection(startPos, curPlayer)) 
-				{
-					isValidInput = true;
-				}
-					
-				// check if player has a piece at that start position
-			}
-		}
-
-		isValidInput = false;
-		while (!isValidInput) {
-			std::wcout
-				<< "Please enter the position you'd like to move to (piece, x, y):"
-				<< std::endl;
-			std::cin >> input;
-			std::cin.ignore(200, '\n');
-			if (input.size() == 5) {
-				getInputArray(input, endPos);
-				if (isValidTraversal(startPos, endPos, curPlayer->playerColor, board)) {
-					if (isSquareEmptyOrTakeable(endPos, board, curPlayer->playerColor))
-						isValidInput = true;
-				}
-			}
-		}
-		// board.whitePlayer.setPosition(startPos, endPos);
-		curPlayer->setPosition(startPos, endPos);
-		if (curPlayerId == 0) {
-			curPlayerId = 1;
-			curPlayer = &board.blackPlayer;
-		}
-		else {
-			curPlayerId = 0;
-			curPlayer = &board.whitePlayer;
-		}
+		PlayerTurn(curPlayerId, curPlayer, board);
 		clearDisplay(hStdOut, originalMode);
 		if (isChecked(board, player::Color::blackPlayer))
 			std::cout << "black is checked";
 		if (isChecked(board, player::Color::whitePlayer))
-			std::cout << "black is checked";
+			std::cout << "White is checked";
 		if (isCheckMate(board, player::Color::blackPlayer))
 			std::cout << "black is checkmate ";
 		if (isCheckMate(board, player::Color::whitePlayer))
 			std::cout << "black is checkmate ";
+	}
+}
+
+void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board)
+{
+	if (curPlayerId + 1 == 2) {
+		printf(CSI "30m");
+		std::cout << "Player " << curPlayerId + 1;
+		printf(CSI "0m");
+	}
+	else
+		std::cout << "Player " << curPlayerId + 1;
+	std::cout << " it is now your turn" << std::endl;
+	std::string input;
+	char endPos[3]{};
+	char startPos[3]{};
+	bool isValidInput = false;
+	// While loop
+	while (!isValidInput) {
+		std::wcout << "Please enter the piece you'd like to move (piece, x, y);"
+			<< std::endl;
+		std::cin >> input;
+		std::cin.ignore(200, '\n');
+		if (input.size() == 5) {
+			getInputArray(input, startPos);
+			if (isValidSelection(startPos, curPlayer))
+			{
+				isValidInput = true;
+			}
+		}
+	}
+
+	isValidInput = false;
+	while (!isValidInput) {
+		std::wcout
+			<< "Please enter the position you'd like to move to (piece, x, y):"
+			<< std::endl;
+		std::cin >> input;
+		std::cin.ignore(200, '\n');
+		if (input.size() == 5) {
+			getInputArray(input, endPos);
+			if (isValidTraversal(startPos, endPos, curPlayer->playerColor, board)) {
+				if (isSquareEmptyOrTakeable(endPos, board, curPlayer->playerColor))
+					isValidInput = true;
+			}
+		}
+	}
+	// don't know if i should uncomment this board.whitePlayer.setPosition(startPos, endPos);
+	curPlayer->pieces->SetPosition(startPos, endPos);
+	if (curPlayerId == 0) {
+		curPlayerId = 1;
+		curPlayer = &board.blackPlayer;
+	}
+	else {
+		curPlayerId = 0;
+		curPlayer = &board.whitePlayer;
 	}
 }
 
@@ -156,9 +156,9 @@ void getInputArray(std::string& input, char startPos[]) {
 	startPos[2] -= 1;
 }
 
-// can their chosen piece make that move.
-// Is the piece blocking its movement
-// Does this result in taking another piece?
+// 1. can their chosen piece make that move.
+// 2. Is the a piece blocking its movement
+// 3. Does this result in taking another piece?
 bool isValidTraversal(char startPos[], char endPos[], player::Color playercolor,
 	Chessboard& board) {
 	// What kind of piece is it
@@ -179,10 +179,9 @@ bool isValidTraversal(char startPos[], char endPos[], player::Color playercolor,
 			// Check if the pawn can take a piece
 			if (std::abs(startPos[1] - endPos[1]) == 1 &&
 				std::abs((startPos[2] - endPos[2])) == 1) {
-				if (isPieceTakeable(playercolor, board, endPos)) {
+				 if (isPieceTakeable(playercolor, board, endPos)) {
 					takePiece(playercolor, board, endPos);
 					return true;
-
 				}
 			}
 		}
@@ -354,7 +353,6 @@ bool isValidTraversal(char startPos[], char endPos[], player::Color playercolor,
 			return true;
 		}
 		return false;
-		break;
 	}
 
 }
@@ -393,42 +391,40 @@ void takePiece(player::Color playercolor, Chessboard& board,
 
 	}
 
-	// Search through said opponents pieces to see if their peice is there
-	for (int i = 0; i < 16; i++) {
-		// If it is one of their pieces at that location
-		if (enemyPlayer->pieces[i][1] == endPos[1] &&
-			enemyPlayer->pieces[i][2] == endPos[2]) {
-			// Find out what piece it is
-			switch (enemyPlayer->pieces[i][0])
-			{
-			case 'P':
-				curPlayer->score.pawns += 1;
-				break;
-			case 'R':
-				curPlayer->score.rooks += 1;
-				break;
-			case 'N':
-				curPlayer->score.knights += 1;
-				break;
-			case 'B':
-				curPlayer->score.bishops += 1;
-				break;
-			case 'Q':
-				curPlayer->score.queen += 1;
-				break;
-			}
-			// Set that piece to dead
-			enemyPlayer->pieces[i][0] = 'x';
+	Piece enemyPiece;
+	if (enemyPlayer->pieces->GetPieceAtCoord(endPos, enemyPiece))
+	{
+		// Find out what piece it is
+		switch (enemyPiece.info[0])
+		{
+		case 'P':
+			curPlayer->score.pawns += 1;
+			break;
+		case 'R':
+			curPlayer->score.rooks += 1;
+			break;
+		case 'N':
+			curPlayer->score.knights += 1;
+			break;
+		case 'B':
+			curPlayer->score.bishops += 1;
+			break;
+		case 'Q':
+			curPlayer->score.queen += 1;
+			break;
 		}
+		// Set that piece to dead
+		enemyPlayer->pieces->KillPieceAtCoord(endPos);
 	}
+	
 }
 
+// Basicly is the piece at the final position belonging to the enemy (therfore takeable)
 bool isPieceTakeable(player::Color playercolor, Chessboard& board,
 	char endPos[]) {
 	// What is the color of the opponents?
 	player* curPlayer = nullptr;
 	player* enemyPlayer = nullptr;
-
 	if (playercolor == player::Color::whitePlayer)
 	{
 		curPlayer = &board.whitePlayer;
@@ -440,30 +436,35 @@ bool isPieceTakeable(player::Color playercolor, Chessboard& board,
 		enemyPlayer = &board.whitePlayer;
 
 	}
-
-	// Search through said opponents pieces to see if their peice is there
-	for (int i = 0; i < 16; i++) {
-		// If it is one of their pieces at that location
-		if (enemyPlayer->pieces[i][1] == endPos[1] &&
-			enemyPlayer->pieces[i][2] == endPos[2]) {
-			return true;
-		}
+	Piece empty;
+	char pos[3] = {endPos[0], endPos[1], endPos[2] };
+	if (enemyPlayer->pieces->GetPieceAtCoord(pos, empty) == true)
+	{
+		return true;
 	}
-	return false;
+	else
+	{
+		return false;
+	}
+	
 }
 
 bool isSquareEmpty(char endPos[], Chessboard& board) {
-	for (int i = 0; i < 16; i++) {
-		if (board.blackPlayer.pieces[i][1] == endPos[1] &&
-			board.blackPlayer.pieces[i][2] == endPos[2]) {
-			return false;
-		}
-		if (board.whitePlayer.pieces[i][1] == endPos[1] &&
-			board.whitePlayer.pieces[i][2] == endPos[2]) {
-			return false;
-		}
+	Piece empty;
+	if (board.blackPlayer.pieces->GetPieceAtCoord(endPos, empty) == false)
+	{
+		return true;
 	}
-	return true;
+	else {
+		return false;
+	}
+	if (board.whitePlayer.pieces->GetPieceAtCoord(endPos, empty) == false)
+	{
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 //is Checked
@@ -483,13 +484,13 @@ bool isChecked(Chessboard& board, player::Color curPlayer)
 		currentPlayer = &board.whitePlayer;
 
 	}
-
-	char king[3] = { currentPlayer->pieces[11][0], currentPlayer->pieces[11][1], currentPlayer->pieces[11][2] };
+	char king[3] = { currentPlayer->pieces->piece13->info[0], currentPlayer->pieces->piece13->info[1], currentPlayer->pieces->piece13->info[2] };
+	  	
 	// Loop through all enemy pieces
 	for (int i = 0; i < 16; i++)
 	{
 		// Can any of the pieces take the king in the next move? <----- same function
-		char start[3] = { enemy->pieces[i][0], enemy->pieces[i][1], enemy->pieces[i][2] };
+		char start[3] = { enemy->pieces->piecesArray[i]->info[0], enemy->pieces->piecesArray[i]->info[1], enemy->pieces->piecesArray[i]->info[2] };
 		if (isValidTraversal(start,king,  currentPlayer->playerColor, board))
 		{
 			return true;
@@ -500,9 +501,11 @@ bool isChecked(Chessboard& board, player::Color curPlayer)
 				// Check those spaces are valid to move into
 					// Can any of squares be taken in the next turn too? <------ Same function
 	}
+	 
 	return false;
 }
 
+// TODO doesn't quite work
 // Check all kings neighbouring squares to see if the king could move into those spaces
 bool isCheckMate(Chessboard& board, player::Color curPlayer) {
 	player* enemy = nullptr;
@@ -520,7 +523,7 @@ bool isCheckMate(Chessboard& board, player::Color curPlayer) {
 
 	}
 
-	char king[3] = { currentPlayer->pieces[11][0], currentPlayer->pieces[11][1], currentPlayer->pieces[11][2] };
+	char king[3] = { currentPlayer->pieces->piece13->info[0], currentPlayer->pieces->piece13->info[1], currentPlayer->pieces->piece13->info[2] };
 	for (int i = -1; i < 2; i++)
 	{
 		for (int j = -1; j < 2; j++)
@@ -533,7 +536,7 @@ bool isCheckMate(Chessboard& board, player::Color curPlayer) {
 				for (int i = 0; i < 16; i++)
 				{
 					// Can any of the pieces take the king in the next move? <----- same function
-					char start[3] = { enemy->pieces[i][0], enemy->pieces[i][1], enemy->pieces[i][2] };
+					char start[3] = { enemy->pieces->piecesArray[i]->info[0], enemy->pieces->piecesArray[i]->info[1], enemy->pieces->piecesArray[i]->info[2] };
 					if (isValidTraversal(start, king, currentPlayer->playerColor, board))
 					{
 						return true;
@@ -548,18 +551,15 @@ bool isCheckMate(Chessboard& board, player::Color curPlayer) {
 }
 
 bool isValidSelection(char startPos[], player* curPlayer) {
-	for (int i = 0; i < 16; i++)
+	Piece piece;
+	if (!curPlayer->pieces->GetPieceAtCoord(startPos, piece))
 	{
-		if (curPlayer->pieces[i][0] != 'x')
-		{
-			if (curPlayer->pieces[i][1] == startPos[1] && curPlayer->pieces[i][2] == startPos[2])
-			{
-				return true;
-			}
-		}
+		std::cout << "You haven't selected a valid piece" << std::endl;
+		return false;
 	}
-	std::cout << "You haven't selected a valid piece" << std::endl;
-	return false;
+	else
+	{
+		return true;
+	}
+	
 }
-
-

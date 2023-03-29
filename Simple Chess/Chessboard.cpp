@@ -32,10 +32,10 @@ void Chessboard::PrintVerticalDivider()
 Chessboard::Chessboard() {
 	//Setup black pieces
 	for (int i = 0; i < 8; i++) {
-		blackPlayer.pieces[i][2] = '6';
+		blackPlayer.pieces->piecesArray[i]->info[2] = '6';
 	}
 	for (int i = 8; i < 16; i++) {
-		blackPlayer.pieces[i][2] = '7';
+		blackPlayer.pieces->piecesArray[i]->info[2] = '7';
 	}
 }
 
@@ -61,16 +61,16 @@ void Chessboard::printChessboard()
 			char square = 'x';
 			// Here we preform the check to see if a piece is here.
 			for (int k = 0; k < 16; k++) {
-				if ((whitePlayer.pieces[k][1] - '0') == j && (whitePlayer.pieces[k][2] - '0') == i && whitePlayer.pieces[k][0] != 'x')
+				if ((whitePlayer.pieces->piecesArray[k]->info[1] - '0') == j && (whitePlayer.pieces->piecesArray[k]->info[2] - '0') == i && whitePlayer.pieces->piecesArray[k]->info[0] != 'x')
 				{
-					square = whitePlayer.pieces[k][0];
+					square = whitePlayer.pieces->piecesArray[k]->info[0];
 				}
 			}
 			// Here we preform the check to see if a piece is here.
 			for (int k = 0; k < 16; k++) {
-				if ((blackPlayer.pieces[k][1] - '0') == j && (blackPlayer.pieces[k][2] - '0') == i && blackPlayer.pieces[k][0] != 'x')
+				if ((blackPlayer.pieces->piecesArray[k]->info[1] - '0') == j && (blackPlayer.pieces->piecesArray[k]->info[2] - '0') == i && blackPlayer.pieces->piecesArray[k]->info[0] != 'x')
 				{
-					square = blackPlayer.pieces[k][0];
+					square = blackPlayer.pieces->piecesArray[k]->info[0];
 					printf(CSI "30m"); // 
 				}
 			}

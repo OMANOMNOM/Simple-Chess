@@ -1,9 +1,13 @@
 #pragma once
 #include "Score.h"
+#include "Pieces.h"
+
+#include <vector>
 class player
 {
 public:
-	char pieces[16][3]{
+
+	/*char pieces[16][3]{
 		{'P', '0','1'},
 		{'P', '1','1'},
 		{'P', '2','1'},
@@ -21,8 +25,9 @@ public:
 		{'B', '5','0'},
 		{'N', '6','0'},
 		{'R', '7','0'}
-	};
+	};*/
 
+	Pieces* pieces = new Pieces();
 	enum Color
 	{
 		whitePlayer,
@@ -38,6 +43,5 @@ public:
 
 public:
 
-	void setPosition(char[], char[]);
 };
 
