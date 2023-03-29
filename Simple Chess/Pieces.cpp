@@ -49,9 +49,9 @@ Pieces::Pieces()
 {
 	piece1 = new Pawn('0', '5');
 	piece2 = new Pawn('1', '1');
-	piece3 = new Pawn('2', '1');
-	piece4 = new Pawn('3', '1');
-	piece5 = new Pawn('3', '2');
+	piece3 = new Pawn('1', '2');
+	piece4 = new Pawn('1', '3');
+	piece5 = new Pawn('2', '2');
 	piece6 = new Pawn('5', '1');
 	piece7 = new Pawn('6', '1');
 	piece8 = new Pawn('7', '1');
