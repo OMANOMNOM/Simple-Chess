@@ -54,6 +54,9 @@
     <ClCompile Include="Pieces.cpp">
       <Filter>Source Files\Pieces</Filter>
     </ClCompile>
+    <ClCompile Include="ChessRules.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Chessboard.h">
@@ -91,6 +94,9 @@
     </ClInclude>
     <ClInclude Include="Rook.h">
       <Filter>Header Files\Pieces</Filter>
+    </ClInclude>
+    <ClInclude Include="ChessRules.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
