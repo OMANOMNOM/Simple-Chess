@@ -12,6 +12,19 @@
 #include <iostream>
 #include "Chessboard.h"
 #include "Pieces.h"
+
+
+#include <functional>  // for function
+#include <iostream>  // for basic_ostream::operator<<, operator<<, endl, basic_ostream, basic_ostream<>::__ostream_type, cout, ostream
+#include <string>    // for string, basic_string, allocator
+#include <vector>    // for vector
+
+#include "ftxui/component/captured_mouse.hpp"      // for ftxui
+#include "ftxui/component/component.hpp"           // for Menu
+#include "ftxui/component/component_options.hpp"   // for MenuOption
+#include "ftxui/component/screen_interactive.hpp"  // for ScreenInteractive
+
+
 #define CSI "\x1b["
 
 void clearDisplay(HANDLE& hStdOut, const DWORD& originalMode);
@@ -29,6 +42,9 @@ bool isChecked(Chessboard& board, player::Color curPlayer);
 bool isCheckMate(Chessboard& board, player::Color curPlayer);
 
 bool isValidSelection(char startPos[], player* curPlayer);
+
+
+
 
 int main() {
 	HANDLE hStdOut;
@@ -520,7 +536,6 @@ bool isCheckMate(Chessboard& board, player::Color curPlayer) {
 	{
 		enemy = &board.blackPlayer;
 		currentPlayer = &board.whitePlayer;
-
 	}
 
 	char king[3] = { currentPlayer->pieces->piece13->info[0], currentPlayer->pieces->piece13->info[1], currentPlayer->pieces->piece13->info[2] };
@@ -546,8 +561,6 @@ bool isCheckMate(Chessboard& board, player::Color curPlayer) {
 		}
 	}
 	return false;
-
-	
 }
 
 bool isValidSelection(char startPos[], player* curPlayer) {
