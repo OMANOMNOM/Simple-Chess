@@ -154,6 +154,7 @@
     <ClCompile Include="Queen.cpp" />
     <ClCompile Include="Rook.cpp" />
     <ClCompile Include="Score.cpp" />
+    <ClCompile Include="Screen.cpp" />
     <ClCompile Include="Simple Chess.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +171,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="Rook.h" />
     <ClInclude Include="Score.h" />
+    <ClInclude Include="Screen.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Simple Chess.rc" />

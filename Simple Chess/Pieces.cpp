@@ -29,7 +29,7 @@ bool Pieces::KillPieceAtCoord(char Coord[3])
 	return false;
 }
 
-bool Pieces::SetPosition(char curCoord[2], char newCoord[2])
+bool Pieces::SetPosition(char curCoord[3], char newCoord[3])
 {
 	for (auto& piece : piecesArray)
 	{

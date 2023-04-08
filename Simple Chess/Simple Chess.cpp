@@ -21,37 +21,116 @@
 #include "ftxui/component/screen_interactive.hpp"  // for ScreenInteractive
 #define CSI "\x1b["
 
+#include <ftxui/dom/elements.hpp>
+#include <ftxui/screen/screen.hpp>
+#include <memory>  // for allocator, __shared_ptr_access
+#include <string>  // for char_traits, operator+, string, basic_string
+#include <chrono>                  // for operator""s, chrono_literals
+#include <thread>  // for sleep_for
+#include <functional>
+#include "ftxui/component/captured_mouse.hpp"  // for ftxui
+#include "ftxui/component/component.hpp"       // for Input, Renderer, Vertical
+#include "ftxui/component/component_base.hpp"  // for ComponentBase
+#include "ftxui/component/component_options.hpp"  // for InputOption
+#include "ftxui/component/screen_interactive.hpp"  // for Component, ScreenInteractive
+#include "ftxui/dom/elements.hpp"  // for text, hbox, separator, Element, operator|, vbox, border
+#include "ftxui/util/ref.hpp"  // for Ref
+#include "ftxui/dom/node.hpp"      // for Render
+#include "ftxui/screen/color.hpp"  // for ftxui
+
+std::chrono::time_point<std::chrono::high_resolution_clock> start;
+std::string timerString = "empty";
+ftxui::Component* curScreen = nullptr;
+ftxui::Component renderer1;
+ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::TerminalOutput();
+
+
+
 void clearDisplay(HANDLE& hStdOut, const DWORD& originalMode);
 void EnableVirtualTerminalSequences(HANDLE& hStdOut, DWORD originalMode);
 void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board);
 void getInputArray(std::string& input, char startPos[]);
+int updateTimer();
+std::function<void()> startTimer();
+
+int playGame();
 
 int main() {
-	HANDLE hStdOut;
-	DWORD originalMode = 0;
-	EnableVirtualTerminalSequences(hStdOut, originalMode);
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	if (hOut == INVALID_HANDLE_VALUE) {
-		printf("Couldn't get the console handle. Quitting.\n");
-		return -1;
-	}
-	Chessboard board = Chessboard();
-	int curPlayerId = 0;
-	player* curPlayer = &board.whitePlayer;
+	bool isPlayingChess = false;
+	if (!isPlayingChess) {
+		
+		using namespace ftxui;
+		using namespace std::chrono_literals;
 
-	while (true) {
-		board.printChessboard();
-		PlayerTurn(curPlayerId, curPlayer, board);
-		clearDisplay(hStdOut, originalMode);
-		if (ChessRules::isChecked(board, player::Color::blackPlayer))
-			std::cout << "black is checked";
-		if (ChessRules::isChecked(board, player::Color::whitePlayer))
-			std::cout << "White is checked";
-		if (ChessRules::isCheckMate(board, player::Color::blackPlayer))
-			std::cout << "black is checkmate ";
-		if (ChessRules::isCheckMate(board, player::Color::whitePlayer))
-			std::cout << "black is checkmate ";
+		//FTXUI stuff 
+
+		//Menu stuff
+		std::vector<std::string> entries = {
+		"New Game",
+		"Options",
+		"Exit",
+		};
+
+		MenuOption option;
+		int selected = 0;
+		int timer;
+		curScreen = nullptr;
+		auto menuObject = Menu(&entries, &selected, &option);
+
+		renderer1 = Renderer(menuObject, [&] {
+			// Update the timer.
+			int duration = updateTimer();
+			if (duration >= 10.0f)
+			{
+			// Change the screen to show chess
+				screen.ExitLoopClosure();
+				playGame();
+				//curScreen = &renderer1;
+				//screen.Loop(*curScreen);
+			}
+			return
+				gridbox({
+					{
+					filler(),
+					vbox({
+						gauge(duration / 10.0),
+						text("this is a test"),
+						text(timerString),
+					}),
+					filler(),
+					}
+					}) |
+				border;
+			});
+		auto renderer = Renderer(menuObject, [&] {
+			// Stick everything in here that i want to render
+			return
+				gridbox({
+					{
+					filler(),
+					vbox({
+						text("Chess game"),
+						separator(),
+						menuObject->Render(),
+						text(timerString),
+						//hbox(text(" First name : ")),
+						//hbox(text(" Last name  : ")),
+						//hbox(text(" Password   : ")),
+					}),
+					filler(),
+					}
+					}) |
+				border;
+			});
+
+		curScreen = &renderer;
+		option.on_enter = &startTimer;
+		using Closure = std::function<void()>;
+
+		screen.Loop(*curScreen);
+		std::cout << "Selected element = " << selected << std::endl;
 	}
+	
 }
 
 void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board)
@@ -151,3 +230,46 @@ void getInputArray(std::string& input, char startPos[]) {
 	startPos[2] -= 1;
 }
 
+int updateTimer() {
+	auto temp = std::chrono::high_resolution_clock::now() - start;
+	auto timeDuration = std::chrono::duration_cast<std::chrono::seconds>(temp);
+	return timeDuration.count();
+}
+
+std::function<void()> startTimer()
+{
+	start = std::chrono::high_resolution_clock::now();
+	screen.ExitLoopClosure();
+	curScreen = &renderer1;
+	screen.Loop(*curScreen);
+
+	return nullptr;
+}
+
+int playGame() {
+	HANDLE hStdOut;
+	DWORD originalMode = 0;
+	EnableVirtualTerminalSequences(hStdOut, originalMode);
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hOut == INVALID_HANDLE_VALUE) {
+		printf("Couldn't get the console handle. Quitting.\n");
+		return -1;
+	}
+	Chessboard board = Chessboard();
+	int curPlayerId = 0;
+	player* curPlayer = &board.whitePlayer;
+
+	while (true) {
+		board.printChessboard();
+		PlayerTurn(curPlayerId, curPlayer, board);
+		clearDisplay(hStdOut, originalMode);
+		if (ChessRules::isChecked(board, player::Color::blackPlayer))
+			std::cout << "black is checked";
+		if (ChessRules::isChecked(board, player::Color::whitePlayer))
+			std::cout << "White is checked";
+		if (ChessRules::isCheckMate(board, player::Color::blackPlayer))
+			std::cout << "black is checkmate ";
+		if (ChessRules::isCheckMate(board, player::Color::whitePlayer))
+			std::cout << "black is checkmate ";
+	}
+}
