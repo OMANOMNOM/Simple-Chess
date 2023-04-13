@@ -44,15 +44,12 @@ ftxui::Component* curScreen = nullptr;
 ftxui::Component renderer1;
 ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::TerminalOutput();
 
-
-
 void clearDisplay(HANDLE& hStdOut, const DWORD& originalMode);
 void EnableVirtualTerminalSequences(HANDLE& hStdOut, DWORD originalMode);
 void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board);
 void getInputArray(std::string& input, char startPos[]);
 int updateTimer();
 std::function<void()> startTimer();
-
 int playGame();
 
 int main() {
@@ -108,13 +105,30 @@ int main() {
 				gridbox({
 					{
 					filler(),
-					vbox({
+					vbox({						
 						text("Chess game"),
+						vbox({
+							text(R"(                                                       .::.)"),
+							text(R"(                                            _()_       _::_)"),
+							text(R"(                                  _O      _/____\_   _/____\_)"),
+							text(R"(           _  _  _     ^^__      / //\    \      /   \      /)"),
+							text(R"(          | || || |   /  - \_   {     }    \____/     \____/)"),
+							text(R"(          |_______| <|    __<    \___/     (____)     (____))"),
+							text(R"(    _     \__ ___ / <|    \      (___)      |  |       |  |)"),
+							text(R"(   (_)     |___|_|  <|     \      |_|       |__|       |__|)"),
+							text(R"(  (___)    |_|___|  <|______\    /   \     /    \     /    \)"),
+							text(R"(  _|_|_    |___|_|   _|____|_   (_____)   (______)   (______))"),
+							text(R"( (_____)  (_______) (________) (_______) (________) (________))"),
+							text(R"( /_____\  /_______\ /________\ /_______\ /________\ /________\)"),
+							text(R"(                                             __By Alefith 22.02.95__)"),
+								
+						}),
 						separator(),
-						menuObject->Render(),
-						text(timerString),
-						//hbox(text(" First name : ")),
-						//hbox(text(" Last name  : ")),
+						border(
+							vbox({
+							menuObject->Render(),
+							})
+						),
 						//hbox(text(" Password   : ")),
 					}),
 					filler(),
