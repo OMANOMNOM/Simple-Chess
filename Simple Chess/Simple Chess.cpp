@@ -11,10 +11,9 @@
 #include "Chessboard.h"
 #include "Pieces.h"
 #include "ChessRules.h"
-
 #include <functional>  // for function
 #include <string>    // for string, basic_string, allocator
-
+#include "ScreenFTX.h"
 #include "ftxui/component/captured_mouse.hpp"      // for ftxui
 #include "ftxui/component/component.hpp"           // for Menu
 #include "ftxui/component/component_options.hpp"   // for MenuOption
@@ -38,10 +37,11 @@
 #include "ftxui/dom/node.hpp"      // for Render
 #include "ftxui/screen/color.hpp"  // for ftxui
 
-std::chrono::time_point<std::chrono::high_resolution_clock> start;
-std::string timerString = "empty";
+	
+//std::chrono::time_point<std::chrono::high_resolution_clock> start;
+//std::string timerString = "empty";
+//ftxui::Component renderLoadingbar;
 ftxui::Component* curScreen = nullptr;
-ftxui::Component renderer1;
 ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::TerminalOutput();
 
 void clearDisplay(HANDLE& hStdOut, const DWORD& originalMode);
@@ -53,98 +53,46 @@ std::function<void()> startTimer();
 int playGame();
 
 int main() {
-	bool isPlayingChess = false;
-	if (!isPlayingChess) {
-		
-		using namespace ftxui;
-		using namespace std::chrono_literals;
+	ScreenFTX testScreen(curScreen);
+	curScreen = &testScreen.renderMenu;
+	screen.Loop(*curScreen);
 
-		//FTXUI stuff 
 
-		//Menu stuff
-		std::vector<std::string> entries = {
-		"New Game",
-		"Options",
-		"Exit",
-		};
-
-		MenuOption option;
-		int selected = 0;
-		int timer;
-		curScreen = nullptr;
-		auto menuObject = Menu(&entries, &selected, &option);
-
-		renderer1 = Renderer(menuObject, [&] {
-			// Update the timer.
-			int duration = updateTimer();
-			if (duration >= 10.0f)
-			{
-			// Change the screen to show chess
-				screen.ExitLoopClosure();
-				playGame();
-				//curScreen = &renderer1;
-				//screen.Loop(*curScreen);
-			}
-			return
-				gridbox({
-					{
-					filler(),
-					vbox({
-						gauge(duration / 10.0),
-						text("this is a test"),
-						text(timerString),
-					}),
-					filler(),
-					}
-					}) |
-				border;
-			});
-		auto renderer = Renderer(menuObject, [&] {
-			// Stick everything in here that i want to render
-			return
-				gridbox({
-					{
-					filler(),
-					vbox({						
-						text("Chess game"),
-						vbox({
-							text(R"(                                                       .::.)"),
-							text(R"(                                            _()_       _::_)"),
-							text(R"(                                  _O      _/____\_   _/____\_)"),
-							text(R"(           _  _  _     ^^__      / //\    \      /   \      /)"),
-							text(R"(          | || || |   /  - \_   {     }    \____/     \____/)"),
-							text(R"(          |_______| <|    __<    \___/     (____)     (____))"),
-							text(R"(    _     \__ ___ / <|    \      (___)      |  |       |  |)"),
-							text(R"(   (_)     |___|_|  <|     \      |_|       |__|       |__|)"),
-							text(R"(  (___)    |_|___|  <|______\    /   \     /    \     /    \)"),
-							text(R"(  _|_|_    |___|_|   _|____|_   (_____)   (______)   (______))"),
-							text(R"( (_____)  (_______) (________) (_______) (________) (________))"),
-							text(R"( /_____\  /_______\ /________\ /_______\ /________\ /________\)"),
-							text(R"(                                             __By Alefith 22.02.95__)"),
-								
-						}),
-						separator(),
-						border(
-							vbox({
-							menuObject->Render(),
-							})
-						),
-						//hbox(text(" Password   : ")),
-					}),
-					filler(),
-					}
-					}) |
-				border;
-			});
-
-		curScreen = &renderer;
-		option.on_enter = &startTimer;
-		using Closure = std::function<void()>;
-
-		screen.Loop(*curScreen);
-		std::cout << "Selected element = " << selected << std::endl;
-	}
 	
+	//renderLoadingbar = Renderer(menuObject, [&] {
+	//	// Update the timer.
+	//	int duration = updateTimer();
+	//	if (duration >= 10.0f)
+	//	{
+	//		// Change the screen to show chess
+	//		screen.ExitLoopClosure();
+	//		screen.Clear();
+	//		playGame();
+	//		//curScreen = &renderer1;
+	//		//screen.Loop(*curScreen);
+	//	}
+	//	return
+	//		gridbox({
+	//			{
+	//			filler(),
+	//			vbox({
+	//				gauge(duration / 10.0),
+	//				text("this is a test"),
+	//				text(timerString),
+	//			}),
+	//			filler(),
+	//			}
+	//			}) |
+	//		border;
+	//	});
+	
+	//curScreen = &renderMenu;
+	//option.on_enter = &startTimer;
+	//using Closure = std::function<void()>;
+	//screen.Loop(*curScreen);
+	//std::cout << "Selected element = " << selected << std::endl;
+
+
 }
 
 void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board)
@@ -244,21 +192,21 @@ void getInputArray(std::string& input, char startPos[]) {
 	startPos[2] -= 1;
 }
 
-int updateTimer() {
-	auto temp = std::chrono::high_resolution_clock::now() - start;
-	auto timeDuration = std::chrono::duration_cast<std::chrono::seconds>(temp);
-	return timeDuration.count();
-}
+//int updateTimer() {
+//	auto temp = std::chrono::high_resolution_clock::now() - start;
+//	auto timeDuration = std::chrono::duration_cast<std::chrono::seconds>(temp);
+//	return timeDuration.count();
+//}
 
-std::function<void()> startTimer()
-{
-	start = std::chrono::high_resolution_clock::now();
-	screen.ExitLoopClosure();
-	curScreen = &renderer1;
-	screen.Loop(*curScreen);
-
-	return nullptr;
-}
+//std::function<void()> startTimer()
+//{
+//	start = std::chrono::high_resolution_clock::now();
+//	screen.ExitLoopClosure();
+//	curScreen = &renderLoadingbar;
+//	screen.Loop(*curScreen);
+//
+//	return nullptr;
+//}
 
 int playGame() {
 	HANDLE hStdOut;
