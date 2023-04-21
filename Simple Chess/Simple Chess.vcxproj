@@ -155,7 +155,6 @@
     <ClCompile Include="Rook.cpp" />
     <ClCompile Include="Score.cpp" />
     <ClCompile Include="Screen.cpp" />
-    <ClCompile Include="ScreenFTX.cpp" />
     <ClCompile Include="Simple Chess.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -173,7 +172,6 @@
     <ClInclude Include="Rook.h" />
     <ClInclude Include="Score.h" />
     <ClInclude Include="Screen.h" />
-    <ClInclude Include="ScreenFTX.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Simple Chess.rc" />
