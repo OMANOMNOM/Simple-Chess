@@ -48,7 +48,7 @@ Chessboard board;
 int curPlayerId;
 player* curPlayer = nullptr;
 
-ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::TerminalOutput();
+ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
 
 void clearDisplay(HANDLE& hStdOut, const DWORD& originalMode);
 void EnableVirtualTerminalSequences(HANDLE& hStdOut, DWORD originalMode);
@@ -73,14 +73,46 @@ int main() {
 		curScreen = nullptr;
 		auto menuObject = Menu(&entries, &selected, &option);
 
-		renderGame = Renderer(menuObject, [&] {
-			playGame();
+		renderGame = Renderer( [&] {
+			std::vector<std::string> strings;
+			std::string b = board.printChessboard();
+			int curPos = 0;
+			while (curPos < b.length() - 1) {
+				int x = b.find("\n", curPos);
+				if (x == std::string::npos)
+				{
+					curPos = b.length();
+				}
+				else {
+					strings.push_back(b.substr(curPos, x - curPos));
+					curPos = x+1;
+				}
+
+			}
 			return
 				gridbox({
 					{
 					filler(),
 					vbox({
-						text("Here we render the game"),
+						text(strings[0]),
+						text(strings[1]),
+						text(strings[2]),
+						text(strings[3]),
+						text(strings[4]),
+						text(strings[5]),
+						text(strings[6]),
+						text(strings[7]),
+						text(strings[8]),
+						text(strings[9]),
+						text(strings[10]),
+						text(strings[11]),
+						text(strings[12]),
+						text(strings[13]),
+						text(strings[14]),
+						text(strings[15]),
+						text(strings[16]),
+						text(strings[17]),
+
 					}),
 					filler(),
 					}
@@ -91,17 +123,20 @@ int main() {
 		renderLoadingScreen = Renderer(menuObject, [&] {
 			// Update the timer.
 			int duration = updateTimer();
-			if (duration >= 10.0f)
+			if (duration >= 1.0f)
 			{
 			// Change the screen to show chess
 				//playGame();
 				board = Chessboard();
 				curPlayerId = 0;
 				curPlayer = &board.whitePlayer;
-
 				screen.ExitLoopClosure();
+
 				curScreen = &renderGame;
 				screen.Loop(*curScreen);
+
+				//playGame();
+
 				//screen.Loop(*curScreen);
 			}
 			return
@@ -289,7 +324,7 @@ int playGame() {
 	//player* curPlayer = &board.whitePlayer;
 
 	while (true) {
-		board.printChessboard();
+		//board.printChessboard();
 		PlayerTurn(curPlayerId, curPlayer, board);
 		//clearDisplay(hStdOut, originalMode);
 		if (ChessRules::isChecked(board, player::Color::blackPlayer))

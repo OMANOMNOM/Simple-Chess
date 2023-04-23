@@ -1,32 +1,33 @@
 ﻿#include "Chessboard.h"
 #include <iostream>
 #include <windows.h>
-
+#include <string>
 #define CSI "\x1b["
 
-void Chessboard::PrintRowDivider(bool isEdge)
+std::string Chessboard::PrintRowDivider(bool isEdge)
 {
+	std::string printout = "";
 	if (isEdge)
 	{
-		std::wcout << "+";
+		printout += "+";
 		for (int i = 0; i < 7; i++)
-			std::wcout << "----";
-		std::wcout << "---+";
+			printout += "----";
+		printout += "---+";
 
 	}
 	else { 
 
-		std::wcout << "+";
+		printout += "+";
 		for (int i = 0; i < 8; i++)
-			std::wcout << "---+";
+			printout += "---+";
 	}
-	std::wcout << std::endl;
-
+	printout += "\n";
+	return printout;
 }
 
-void Chessboard::PrintVerticalDivider()
+std::string Chessboard::PrintVerticalDivider()
 {
-	std::wcout << '|';
+	return "|";
 }
 
 Chessboard::Chessboard() {
@@ -39,21 +40,22 @@ Chessboard::Chessboard() {
 	}
 }
 
-void Chessboard::printChessboard()
+std::string Chessboard::printChessboard()
 {
 	char columns[8] = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
+	std::string printout = "";
 	// i are rows
-	std::wcout << "  ";
+	printout += "  ";
 	for (int i = 0; i < 8; i++)
 	{
-		std::wcout << columns[i];
-		std::wcout << "   ";
+		printout += columns[i];
+		printout += "   ";
 	}
-	std::wcout << std::endl;
-	PrintRowDivider(true);
+	printout += "\n";
+	printout += PrintRowDivider(true);
 	for (int i = 7; i >= 0; i--)
 	{
-		PrintVerticalDivider();
+		printout += PrintVerticalDivider();
 
 		// J are columns
 		for (int j = 0; j < 8; j++)
@@ -71,37 +73,42 @@ void Chessboard::printChessboard()
 				if ((blackPlayer.pieces->piecesArray[k]->info[1] - '0') == j && (blackPlayer.pieces->piecesArray[k]->info[2] - '0') == i && blackPlayer.pieces->piecesArray[k]->info[0] != 'x')
 				{
 					square = blackPlayer.pieces->piecesArray[k]->info[0];
-					printf(CSI "30m"); // 
+					//printf(CSI "30m"); // 
 				}
 			}
 			if (square == 'x')
 			{
-				square = '   ';
+				square = '  ';
 				//square = this->board[i][j];
 			}
 
-			std::cout << " " << square << " ";
-			printf(CSI "0m");
-			PrintVerticalDivider();
+			printout += " ";
+			printout += square;
+			printout += " ";
+			//printf(CSI "0m");
+			printout += PrintVerticalDivider();
 		}
-		std::wcout << "  " << i + 1 << "  ";
+		//printout += "  ";
+		printout += std::to_string(i+ 1);
+		printout +=	+ "  ";
 		if (i == 6)
 		{
 			//print out the scores for blacks
-			std::cout << "Blacks: " << "P:" << blackPlayer.score.pawns << " R:" << blackPlayer.score.rooks << " N:" << blackPlayer.score.knights << " B:" << blackPlayer.score.bishops << " Q:" << blackPlayer.score.queen;
+			//std::cout << "Blacks: " << "P:" << blackPlayer.score.pawns << " R:" << blackPlayer.score.rooks << " N:" << blackPlayer.score.knights << " B:" << blackPlayer.score.bishops << " Q:" << blackPlayer.score.queen;
 
 		}
-		
-		if (i == 1) {
-			//Print out the scores for whites
-			std::cout << "Whites: " << "P: " << whitePlayer.score.pawns << " R:" << whitePlayer.score.rooks << " N:" << whitePlayer.score.knights << " B:" << whitePlayer.score.bishops << " Q:" << whitePlayer.score.queen;
+		//	
+		//	if (i == 1) {
+		//		//Print out the scores for whites
+		//		//std::cout << "Whites: " << "P: " << whitePlayer.score.pawns << " R:" << whitePlayer.score.rooks << " N:" << whitePlayer.score.knights << " B:" << whitePlayer.score.bishops << " Q:" << whitePlayer.score.queen;
 
-		}
-		std::cout << std::endl;
-		if (i !=1)
-			PrintRowDivider(false);
-		else
-			PrintRowDivider(true);
+		//	}
+		printout += "\n";
+				if (i !=1)
+					printout += PrintRowDivider(false);
+				else
+					printout += PrintRowDivider(true);
 
 	}
+	return printout;
 }

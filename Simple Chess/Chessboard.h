@@ -1,5 +1,6 @@
 #pragma once
 #include "player.h"
+#include <string>
 class Chessboard
 {
 public:
@@ -20,10 +21,10 @@ public:
     // Chessboard has white in right corners.
     // Each sub array is a row. 
     // chessboard[row][column]
-    void printChessboard();
+    std::string printChessboard();
 
-    void PrintRowDivider(bool isEdge);
-    void PrintVerticalDivider();
+    std::string PrintRowDivider(bool isEdge);
+    std::string PrintVerticalDivider();
     
 };
 
