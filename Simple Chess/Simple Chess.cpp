@@ -47,6 +47,9 @@ ftxui::Component renderGame;
 Chessboard board;
 int curPlayerId;
 player* curPlayer = nullptr;
+std::string content;
+std::string content1;
+
 
 ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
 
@@ -56,39 +59,69 @@ void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board);
 void getInputArray(std::string& input, char startPos[]);
 int updateTimer();
 std::function<void()> startTimer();
+std::function<void()> pieceSelection();
+
 int playGame();
 
 int main() {
+
+	using namespace ftxui;
+	using namespace std::chrono_literals;
+	//Menu stuff
+	std::vector<std::string> entries = {
+	"New Game",
+	"Options",
+	"Exit",
+	};
+	MenuOption option;
+	int selected = 0;
+	curScreen = nullptr;
+	auto menuObject = Menu(&entries, &selected, &option);
+
+	content = "";
+	std::string placeholder = "placeholder";
+	std::string placeholder1 = "test ";
+
+	InputOption inputoptions;
+	inputoptions.on_enter = &pieceSelection;
+	Component input = Input(&content, &placeholder, &inputoptions);
+	Component inputDestination = Input(&content1, &placeholder1, &inputoptions);
+
+	auto component = Container::Vertical({
+	input,
+	inputDestination,
+	
+		});
+
+	renderGame = Renderer(component,  [&] {
+		// Input box
 		
-		using namespace ftxui;
-		using namespace std::chrono_literals;
-		//Menu stuff
-		std::vector<std::string> entries = {
-		"New Game",
-		"Options",
-		"Exit",
-		};
-		MenuOption option;
-		int selected = 0;
-		curScreen = nullptr;
-		auto menuObject = Menu(&entries, &selected, &option);
-
-		renderGame = Renderer( [&] {
-			std::vector<std::string> strings;
-			std::string b = board.printChessboard();
-			int curPos = 0;
-			while (curPos < b.length() - 1) {
-				int x = b.find("\n", curPos);
-				if (x == std::string::npos)
-				{
-					curPos = b.length();
-				}
-				else {
-					strings.push_back(b.substr(curPos, x - curPos));
-					curPos = x+1;
-				}
-
+		// Chessboard componet
+		std::vector<std::string> strings;
+		std::string b = board.printChessboard();
+		int curPos = 0;
+		while (curPos < b.length() - 1) {
+			int x = b.find("\n", curPos);
+			if (x == std::string::npos)
+			{
+				curPos = b.length();
 			}
+			else {
+				strings.push_back(b.substr(curPos, x - curPos));
+				curPos = x + 1;
+			}
+
+		}
+
+		//chess logic
+		std::string playerPromt = "";
+		if (curPlayerId + 1 == 2) {
+			playerPromt = "Player " + std::to_string(curPlayerId + 1);
+		}
+		else {
+			playerPromt = "Player " + std::to_string(curPlayerId + 1);
+		}
+			playerPromt += " it is now your turn";
 			return
 				gridbox({
 					{
@@ -112,145 +145,149 @@ int main() {
 						text(strings[15]),
 						text(strings[16]),
 						text(strings[17]),
-
-					}),
-					filler(),
-					}
-					}) |
-				border;
-			});
-
-		renderLoadingScreen = Renderer(menuObject, [&] {
-			// Update the timer.
-			int duration = updateTimer();
-			if (duration >= 1.0f)
-			{
-			// Change the screen to show chess
-				//playGame();
-				board = Chessboard();
-				curPlayerId = 0;
-				curPlayer = &board.whitePlayer;
-				screen.ExitLoopClosure();
-
-				curScreen = &renderGame;
-				screen.Loop(*curScreen);
-
-				//playGame();
-
-				//screen.Loop(*curScreen);
-			}
-			return
-				gridbox({
-					{
-					filler(),
-					vbox({
-						gauge(duration / 10.0),
-						text("this is a test"),
-						text(timerString),
-					}),
-					filler(),
-					}
-					}) |
-				border;
-			});
-
-		renderMenu = Renderer(menuObject, [&] {
-			// Stick everything in here that i want to render
-			return
-				gridbox({
-					{
-					filler(),
-					vbox({						
-						text("Chess game"),
-						vbox({
-							text(R"(                                                       .::.)"),
-							text(R"(                                            _()_       _::_)"),
-							text(R"(                                  _O      _/____\_   _/____\_)"),
-							text(R"(           _  _  _     ^^__      / //\    \      /   \      /)"),
-							text(R"(          | || || |   /  - \_   {     }    \____/     \____/)"),
-							text(R"(          |_______| <|    __<    \___/     (____)     (____))"),
-							text(R"(    _     \__ ___ / <|    \      (___)      |  |       |  |)"),
-							text(R"(   (_)     |___|_|  <|     \      |_|       |__|       |__|)"),
-							text(R"(  (___)    |_|___|  <|______\    /   \     /    \     /    \)"),
-							text(R"(  _|_|_    |___|_|   _|____|_   (_____)   (______)   (______))"),
-							text(R"( (_____)  (_______) (________) (_______) (________) (________))"),
-							text(R"( /_____\  /_______\ /________\ /_______\ /________\ /________\)"),
-							text(R"(                                             __By Alefith 22.02.95__)"),
-								
 						}),
-						separator(),
 						border(
-							vbox({
-							menuObject->Render(),
-							})
+								vbox({
+									text(playerPromt),
+									hbox({input->Render()}),
+									hbox({inputDestination->Render()}),
+								})
 						),
-					})
-					| border,
-					filler(),
-					}
-					});
-			});
-		curScreen = &renderMenu;
-		option.on_enter = &startTimer;
-		screen.Loop(*curScreen);
-	
-	
+				filler(),
+				}
+				}) |
+			border;
+		});
+
+	renderLoadingScreen = Renderer(menuObject, [&] {
+		// Update the timer.
+		int duration = updateTimer();
+		if (duration >= 1.0f)
+		{
+			// Change the screen to show chess
+			
+			board = Chessboard();
+			curPlayerId = 0;
+			curPlayer = &board.whitePlayer;
+			screen.ExitLoopClosure();
+
+			curScreen = &renderGame;
+			screen.Loop(*curScreen);
+			playGame();
+
+		}
+		return
+			gridbox({
+				{
+				filler(),
+				vbox({
+					gauge(duration / 10.0),
+					text("this is a test"),
+					text(timerString),
+				}),
+				filler(),
+				}
+				}) |
+			border;
+		});
+
+	renderMenu = Renderer(menuObject, [&] {
+		// Stick everything in here that i want to render
+		return
+			gridbox({
+				{
+				filler(),
+				vbox({
+					text("Chess game"),
+					vbox({
+						text(R"(                                                       .::.)"),
+						text(R"(                                            _()_       _::_)"),
+						text(R"(                                  _O      _/____\_   _/____\_)"),
+						text(R"(           _  _  _     ^^__      / //\    \      /   \      /)"),
+						text(R"(          | || || |   /  - \_   {     }    \____/     \____/)"),
+						text(R"(          |_______| <|    __<    \___/     (____)     (____))"),
+						text(R"(    _     \__ ___ / <|    \      (___)      |  |       |  |)"),
+						text(R"(   (_)     |___|_|  <|     \      |_|       |__|       |__|)"),
+						text(R"(  (___)    |_|___|  <|______\    /   \     /    \     /    \)"),
+						text(R"(  _|_|_    |___|_|   _|____|_   (_____)   (______)   (______))"),
+						text(R"( (_____)  (_______) (________) (_______) (________) (________))"),
+						text(R"( /_____\  /_______\ /________\ /_______\ /________\ /________\)"),
+						text(R"(                                             __By Alefith 22.02.95__)"),
+
+					}),
+					separator(),
+					border(
+						vbox({
+						menuObject->Render(),
+						})
+					),
+				})
+				| border,
+				filler(),
+				}
+				});
+		});
+	curScreen = &renderMenu;
+	option.on_enter = &startTimer;
+	screen.Loop(*curScreen);
+
+
 }
 
-void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board)
-{
-	if (curPlayerId + 1 == 2) {
-		printf(CSI "30m");
-		std::cout << "Player " << curPlayerId + 1;
-		printf(CSI "0m");
-	}
-	else
-		std::cout << "Player " << curPlayerId + 1;
-	std::cout << " it is now your turn" << std::endl;
-	std::string input;
-	char endPos[3]{};
-	char startPos[3]{};
-	bool isValidInput = false;
-	// While loop
-	while (!isValidInput) {
-		std::wcout << "Please enter the piece you'd like to move (piece, x, y);"
-			<< std::endl;
-		std::cin >> input;
-		std::cin.ignore(200, '\n');
-		if (input.size() == 5) {
-			getInputArray(input, startPos);
-			if (ChessRules::isValidSelection(startPos, curPlayer))
-			{
-				isValidInput = true;
-			}
-		}
-	}
-
-	isValidInput = false;
-	while (!isValidInput) {
-		std::wcout
-			<< "Please enter the position you'd like to move to (piece, x, y):"
-			<< std::endl;
-		std::cin >> input;
-		std::cin.ignore(200, '\n');
-		if (input.size() == 5) {
-			getInputArray(input, endPos);
-			if (ChessRules::isValidTraversal(startPos, endPos, curPlayer->playerColor, board)) {
-				if (ChessRules::isSquareEmptyOrTakeable(endPos, board, curPlayer->playerColor))
-					isValidInput = true;
-			}
-		}
-	}
-	curPlayer->pieces->SetPosition(startPos, endPos);
-	if (curPlayerId == 0) {
-		curPlayerId = 1;
-		curPlayer = &board.blackPlayer;
-	}
-	else {
-		curPlayerId = 0;
-		curPlayer = &board.whitePlayer;
-	}
-}
+//void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board)
+//{
+//	if (curPlayerId + 1 == 2) {
+//		printf(CSI "30m");
+//		std::cout << "Player " << curPlayerId + 1;
+//		printf(CSI "0m");
+//	}
+//	else
+//		std::cout << "Player " << curPlayerId + 1;
+//	std::cout << " it is now your turn" << std::endl;
+//	std::string input;
+//	char endPos[3]{};
+//	char startPos[3]{};
+//	bool isValidInput = false;
+//	// While loop
+//	while (!isValidInput) {
+//		std::wcout << "Please enter the piece you'd like to move (piece, x, y);"
+//			<< std::endl;
+//		std::cin >> input;
+//		std::cin.ignore(200, '\n');
+//		if (input.size() == 5) {
+//			getInputArray(input, startPos);
+//			if (ChessRules::isValidSelection(startPos, curPlayer))
+//			{
+//				isValidInput = true;
+//			}
+//		}
+//	}
+//
+//	isValidInput = false;
+//	while (!isValidInput) {
+//		std::wcout
+//			<< "Please enter the position you'd like to move to (piece, x, y):"
+//			<< std::endl;
+//		std::cin >> input;
+//		std::cin.ignore(200, '\n');
+//		if (input.size() == 5) {
+//			getInputArray(input, endPos);
+//			if (ChessRules::isValidTraversal(startPos, endPos, curPlayer->playerColor, board)) {
+//				if (ChessRules::isSquareEmptyOrTakeable(endPos, board, curPlayer->playerColor))
+//					isValidInput = true;
+//			}
+//		}
+//	}
+//	curPlayer->pieces->SetPosition(startPos, endPos);
+//	if (curPlayerId == 0) {
+//		curPlayerId = 1;
+//		curPlayer = &board.blackPlayer;
+//	}
+//	else {
+//		curPlayerId = 0;
+//		curPlayer = &board.whitePlayer;
+//	}
+//}
 
 void EnableVirtualTerminalSequences(HANDLE& hStdOut, DWORD originalMode) {
 	hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -299,6 +336,24 @@ int updateTimer() {
 	auto timeDuration = std::chrono::duration_cast<std::chrono::seconds>(temp);
 	return timeDuration.count();
 }
+std::function<void()> pieceSelection()
+{
+	char inputArray[3];
+	getInputArray(content, inputArray);
+	bool isValidInput = false;
+	while (!isValidInput) {
+		//std::wcout << "Please enter the piece you'd like to move (piece, x, y);"
+			//<< std::endl;
+		if (content.size() == 5) {
+			getInputArray(content, inputArray);
+			if (ChessRules::isValidSelection(inputArray, curPlayer))
+			{
+				isValidInput = true;
+			}
+		}
+	}
+	return nullptr;
+}
 
 std::function<void()> startTimer()
 {
@@ -325,7 +380,7 @@ int playGame() {
 
 	while (true) {
 		//board.printChessboard();
-		PlayerTurn(curPlayerId, curPlayer, board);
+		//PlayerTurn(curPlayerId, curPlayer, board);
 		//clearDisplay(hStdOut, originalMode);
 		if (ChessRules::isChecked(board, player::Color::blackPlayer))
 			std::cout << "black is checked";
