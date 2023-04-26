@@ -49,6 +49,8 @@ int curPlayerId;
 player* curPlayer = nullptr;
 std::string content;
 std::string content1;
+char inputArray[3];
+char inputArray1[3];
 
 
 ftxui::ScreenInteractive screen = ftxui::ScreenInteractive::Fullscreen();
@@ -59,7 +61,7 @@ void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board);
 void getInputArray(std::string& input, char startPos[]);
 int updateTimer();
 std::function<void()> startTimer();
-std::function<void()> pieceSelection();
+std::function<void()> getInputs();
 
 int playGame();
 
@@ -83,7 +85,7 @@ int main() {
 	std::string placeholder1 = "test ";
 
 	InputOption inputoptions;
-	inputoptions.on_enter = &pieceSelection;
+	inputoptions.on_enter = &getInputs;
 	Component input = Input(&content, &placeholder, &inputoptions);
 	Component inputDestination = Input(&content1, &placeholder1, &inputoptions);
 
@@ -234,6 +236,137 @@ int main() {
 
 }
 
+
+
+void EnableVirtualTerminalSequences(HANDLE& hStdOut, DWORD originalMode) {
+	hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	// Fetch existing console mode so we correctly add a flag and not turn off
+	// others
+	DWORD mode = 0;
+	if (!GetConsoleMode(hStdOut, &mode)) {
+		// return ::GetLastError();
+	}
+
+	// Hold original mode to restore on exit to be cooperative with other
+	// command-line apps.
+	originalMode = mode;
+	mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+
+	// Try to set the mode.
+	if (!SetConsoleMode(hStdOut, mode)) {
+		// return ::GetLastError();
+	}
+}
+void clearDisplay(HANDLE& hStdOut, const DWORD& originalMode) {
+	// Write the sequence for clearing the display.
+	DWORD written = 0;
+	PCWSTR sequence = L"\x1b[2J";
+	if (!WriteConsoleW(hStdOut, sequence, (DWORD)wcslen(sequence), &written,
+		NULL)) {
+		// If we fail, try to restore the mode on the way out.
+		SetConsoleMode(hStdOut, originalMode);
+	}
+}
+
+// Get input and convert to array coordinates starting at zero
+void getInputArray(std::string& input, char startPos[]) {
+	for (int i = 0; i < 3; i++) {
+		char buffer[3];
+		input.copy(buffer, 1, (i * 2));
+		startPos[i] = buffer[0];
+	}
+	startPos[1] -= 1;
+	startPos[2] -= 1;
+}
+
+int updateTimer() {
+	auto temp = std::chrono::high_resolution_clock::now() - start;
+	auto timeDuration = std::chrono::duration_cast<std::chrono::seconds>(temp);
+	return timeDuration.count();
+}
+std::function<void()> getInputs()
+{
+	getInputArray(content, inputArray);
+	bool isValidInput = false;
+	while (!isValidInput) {
+		//std::wcout << "Please enter the piece you'd like to move (piece, x, y);"
+			//<< std::endl;
+		if (content.size() == 5) {
+			getInputArray(content, inputArray);
+			if (ChessRules::isValidSelection(inputArray, curPlayer))
+			{
+				isValidInput = true;
+			}
+		}
+	}
+	isValidInput = false;
+	while (!isValidInput) {
+		/*std::wcout
+			<< "Please enter the position you'd like to move to (piece, x, y):"
+			<< std::endl;
+		std::cin >> input;
+		std::cin.ignore(200, '\n');*/
+		if (content1.size() == 5) {
+			getInputArray(content1, inputArray1);
+			if (ChessRules::isValidTraversal(inputArray, inputArray1, curPlayer->playerColor, board)) {
+				if (ChessRules::isSquareEmptyOrTakeable(inputArray1, board, curPlayer->playerColor))
+					isValidInput = true;
+			}
+		}
+	}
+
+	curPlayer->pieces->SetPosition(inputArray, inputArray1);
+	if (curPlayerId == 0) {
+		curPlayerId = 1;
+		curPlayer = &board.blackPlayer;
+	}
+	else {
+		curPlayerId = 0;
+		curPlayer = &board.whitePlayer;
+	}
+	
+	return nullptr;
+}
+
+std::function<void()> startTimer()
+{
+	start = std::chrono::high_resolution_clock::now();
+	screen.ExitLoopClosure();
+	curScreen = &renderLoadingScreen;
+	screen.Loop(*curScreen);
+
+	return nullptr;
+}
+
+int playGame() {
+	//HANDLE hStdOut;
+	//DWORD originalMode = 0;
+	//EnableVirtualTerminalSequences(hStdOut, originalMode);
+	//HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	//if (hOut == INVALID_HANDLE_VALUE) {
+	//	printf("Couldn't get the console handle. Quitting.\n");
+	//	return -1;
+	//}
+	//Chessboard board = Chessboard();
+	//int curPlayerId = 0;
+	//player* curPlayer = &board.whitePlayer;
+
+	while (true) {
+		//board.printChessboard();
+		//PlayerTurn(curPlayerId, curPlayer, board);
+		//clearDisplay(hStdOut, originalMode);
+		if (ChessRules::isChecked(board, player::Color::blackPlayer))
+			std::cout << "black is checked";
+		if (ChessRules::isChecked(board, player::Color::whitePlayer))
+			std::cout << "White is checked";
+		if (ChessRules::isCheckMate(board, player::Color::blackPlayer))
+			std::cout << "black is checkmate ";
+		if (ChessRules::isCheckMate(board, player::Color::whitePlayer))
+			std::cout << "black is checkmate ";
+	}
+}
+
 //void PlayerTurn(int& curPlayerId, player*& curPlayer, Chessboard& board)
 //{
 //	if (curPlayerId + 1 == 2) {
@@ -288,107 +421,3 @@ int main() {
 //		curPlayer = &board.whitePlayer;
 //	}
 //}
-
-void EnableVirtualTerminalSequences(HANDLE& hStdOut, DWORD originalMode) {
-	hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-
-	// Fetch existing console mode so we correctly add a flag and not turn off
-	// others
-	DWORD mode = 0;
-	if (!GetConsoleMode(hStdOut, &mode)) {
-		// return ::GetLastError();
-	}
-
-	// Hold original mode to restore on exit to be cooperative with other
-	// command-line apps.
-	originalMode = mode;
-	mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-
-	// Try to set the mode.
-	if (!SetConsoleMode(hStdOut, mode)) {
-		// return ::GetLastError();
-	}
-}
-void clearDisplay(HANDLE& hStdOut, const DWORD& originalMode) {
-	// Write the sequence for clearing the display.
-	DWORD written = 0;
-	PCWSTR sequence = L"\x1b[2J";
-	if (!WriteConsoleW(hStdOut, sequence, (DWORD)wcslen(sequence), &written,
-		NULL)) {
-		// If we fail, try to restore the mode on the way out.
-		SetConsoleMode(hStdOut, originalMode);
-	}
-}
-
-// Get input and convert to array coordinates starting at zero
-void getInputArray(std::string& input, char startPos[]) {
-	for (int i = 0; i < 3; i++) {
-		char buffer[3];
-		input.copy(buffer, 1, (i * 2));
-		startPos[i] = buffer[0];
-	}
-	startPos[1] -= 1;
-	startPos[2] -= 1;
-}
-
-int updateTimer() {
-	auto temp = std::chrono::high_resolution_clock::now() - start;
-	auto timeDuration = std::chrono::duration_cast<std::chrono::seconds>(temp);
-	return timeDuration.count();
-}
-std::function<void()> pieceSelection()
-{
-	char inputArray[3];
-	getInputArray(content, inputArray);
-	bool isValidInput = false;
-	while (!isValidInput) {
-		//std::wcout << "Please enter the piece you'd like to move (piece, x, y);"
-			//<< std::endl;
-		if (content.size() == 5) {
-			getInputArray(content, inputArray);
-			if (ChessRules::isValidSelection(inputArray, curPlayer))
-			{
-				isValidInput = true;
-			}
-		}
-	}
-	return nullptr;
-}
-
-std::function<void()> startTimer()
-{
-	start = std::chrono::high_resolution_clock::now();
-	screen.ExitLoopClosure();
-	curScreen = &renderLoadingScreen;
-	screen.Loop(*curScreen);
-
-	return nullptr;
-}
-
-int playGame() {
-	//HANDLE hStdOut;
-	//DWORD originalMode = 0;
-	//EnableVirtualTerminalSequences(hStdOut, originalMode);
-	//HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	//if (hOut == INVALID_HANDLE_VALUE) {
-	//	printf("Couldn't get the console handle. Quitting.\n");
-	//	return -1;
-	//}
-	//Chessboard board = Chessboard();
-	//int curPlayerId = 0;
-	//player* curPlayer = &board.whitePlayer;
-
-	while (true) {
-		//board.printChessboard();
-		//PlayerTurn(curPlayerId, curPlayer, board);
-		//clearDisplay(hStdOut, originalMode);
-		if (ChessRules::isChecked(board, player::Color::blackPlayer))
-			std::cout << "black is checked";
-		if (ChessRules::isChecked(board, player::Color::whitePlayer))
-			std::cout << "White is checked";
-		if (ChessRules::isCheckMate(board, player::Color::blackPlayer))
-			std::cout << "black is checkmate ";
-		if (ChessRules::isCheckMate(board, player::Color::whitePlayer))
-			std::cout << "black is checkmate ";
-	}
-}
