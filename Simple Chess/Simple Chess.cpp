@@ -11,10 +11,9 @@
 #include "Chessboard.h"
 #include "Pieces.h"
 #include "ChessRules.h"
-
 #include <functional>  // for function
 #include <string>    // for string, basic_string, allocator
-
+#include "ScreenFTX.h"
 #include "ftxui/component/captured_mouse.hpp"      // for ftxui
 #include "ftxui/component/component.hpp"           // for Menu
 #include "ftxui/component/component_options.hpp"   // for MenuOption
@@ -38,8 +37,10 @@
 #include "ftxui/dom/node.hpp"      // for Render
 #include "ftxui/screen/color.hpp"  // for ftxui
 
-std::chrono::time_point<std::chrono::high_resolution_clock> start;
-std::string timerString = "empty";
+	
+//std::chrono::time_point<std::chrono::high_resolution_clock> start;
+//std::string timerString = "empty";
+//ftxui::Component renderLoadingbar;
 ftxui::Component* curScreen = nullptr;
 ftxui::Component renderLoadingScreen;
 ftxui::Component renderMenu;
